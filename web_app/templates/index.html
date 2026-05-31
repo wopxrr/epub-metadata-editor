@@ -141,6 +141,13 @@
                     <button type="button" class="btn btn-secondary prompt-btn" id="prompt-btn">Copy AI Metadata Prompt</button>
                     <p class="prompt-desc">Copy prompt to search for complete metadata using AI (ChatGPT, Claude, etc.)</p>
                 </div>
+
+                <!-- Clean Metadata -->
+                <div class="clean-section">
+                    <button type="button" class="btn btn-danger clean-btn" id="clean-btn">Clean All Metadata</button>
+                    <p class="clean-desc">Remove all metadata from this EPUB (title, author, description, etc.). Cover image reference is preserved.</p>
+                    <div id="clean-status" class="status"></div>
+                </div>
             </section>
         </main>
 
@@ -170,6 +177,8 @@
         const coverStatus = document.getElementById('cover-status');
         const versionBadge = document.getElementById('version-badge');
         const promptBtn = document.getElementById('prompt-btn');
+        const cleanBtn = document.getElementById('clean-btn');
+        const cleanStatus = document.getElementById('clean-status');
 
         // Drag & Drop
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
@@ -413,6 +422,29 @@
                 promptBtn.textContent = 'Copied!';
                 setTimeout(() => promptBtn.textContent = orig, 2000);
             });
+        });
+
+        // Clean all metadata
+        cleanBtn.addEventListener('click', async () => {
+            if (!confirm('WARNING: This will remove ALL metadata (title, author, description, etc.) from this EPUB.\n\nThe cover image reference will be preserved.\n\nAre you sure?')) {
+                return;
+            }
+            cleanStatus.textContent = 'Cleaning metadata...';
+            cleanStatus.className = 'status info';
+            try {
+                const res = await fetch(`/clean/${currentSession}`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed');
+                populateForm(data.metadata);
+                hasCover = data.has_cover;
+                refreshCover();
+                setDirty(true);
+                cleanStatus.textContent = 'All metadata cleaned! You can now fill in new metadata.';
+                cleanStatus.className = 'status success';
+            } catch (err) {
+                cleanStatus.textContent = 'Error: ' + err.message;
+                cleanStatus.className = 'status error';
+            }
         });
     </script>
 </body>

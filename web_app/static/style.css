@@ -337,6 +337,25 @@ body {
     color: #64748b;
 }
 
+/* Clean section */
+.clean-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #fee2e2;
+    text-align: center;
+}
+
+.clean-btn {
+    width: auto;
+    min-width: 220px;
+}
+
+.clean-desc {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: #991b1b;
+}
+
 /* Larger screens */
 @media (min-width: 768px) {
     .app {

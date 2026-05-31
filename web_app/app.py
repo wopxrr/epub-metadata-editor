@@ -223,6 +223,45 @@ def remove_cover(session_id):
     return jsonify({"success": True, "has_cover": False})
 
 
+@app.route("/clean/<session_id>", methods=["POST"])
+def clean_metadata(session_id):
+    if session_id not in _temp_store:
+        return jsonify({"error": "Invalid session"}), 400
+
+    tmp_path = _temp_store[session_id]
+    handler = EpubHandler()
+    try:
+        handler.open_epub(tmp_path)
+        handler.clean_metadata()
+        meta = handler.get_metadata()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    finally:
+        handler.close()
+
+    return jsonify({
+        "success": True,
+        "metadata": {
+            "title": meta.title,
+            "creators": meta.creators,
+            "language": meta.language,
+            "identifiers": meta.identifiers,
+            "description": meta.description,
+            "publisher": meta.publisher,
+            "date": meta.date,
+            "rights": meta.rights,
+            "subjects": meta.subjects,
+            "series": meta.series,
+            "series_index": meta.series_index,
+            "title_sort": meta.title_sort,
+            "author_sort": meta.author_sort,
+            "rating": meta.rating,
+            "modification_date": meta.modification_date,
+        },
+        "has_cover": bool(meta.cover_id),
+    })
+
+
 def _cleanup_old_files():
     """Remove orphaned temp files that no longer have a session entry."""
     # Simple cleanup: if file doesn't exist, remove key

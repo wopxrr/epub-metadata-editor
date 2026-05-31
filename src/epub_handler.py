@@ -631,6 +631,62 @@ class EpubHandler:
             if cover_meta is not None:
                 meta_elem.remove(cover_meta)
 
+    def clean_metadata(self) -> None:
+        """Strip all dc: metadata and meta tags from the OPF (keep only manifest/spine).
+        Preserves the cover meta tag so the cover image reference isn't lost.
+        """
+        if self.zip_file is None or self.opf_tree is None or self.opf_path_in_zip is None:
+            raise RuntimeError("No EPUB is open.")
+
+        meta_elem = self.opf_tree.find(_ns("metadata"))
+        if meta_elem is None:
+            raise RuntimeError("<metadata> element missing from OPF.")
+
+        # Remove all dc: elements
+        dc_tags = ("title", "creator", "language", "identifier", "description",
+                   "publisher", "date", "rights", "subject", "contributor",
+                   "source", "relation", "coverage", "format", "type")
+        for tag in dc_tags:
+            for el in meta_elem.findall(_ns(tag, _DC_NS)):
+                meta_elem.remove(el)
+
+        # Remove all <meta> tags except cover
+        cover_meta = None
+        for meta in meta_elem.findall(_ns("meta")):
+            if meta.get("name") == "cover":
+                cover_meta = meta
+            else:
+                meta_elem.remove(meta)
+
+        # Reset in-memory metadata
+        self.metadata = EpubMetadata()
+        self.metadata.cover_id = cover_meta.get("content", "") if cover_meta is not None else ""
+        self.metadata.version = self.version
+
+        # Serialize and rewrite ZIP
+        new_opf_bytes = self._serialize_opf()
+        original_path = self.zip_path
+        temp_path = original_path.with_suffix(".epub.tmp")
+
+        self.zip_file.close()
+        self.zip_file = None
+
+        try:
+            with zipfile.ZipFile(original_path, "r") as zin, \
+                 zipfile.ZipFile(temp_path, "w", zipfile.ZIP_DEFLATED) as zout:
+                for item in zin.infolist():
+                    if item.filename == self.opf_path_in_zip:
+                        zout.writestr(item, new_opf_bytes)
+                    else:
+                        zout.writestr(item, zin.read(item.filename))
+            temp_path.replace(original_path)
+        except Exception:
+            if temp_path.exists():
+                temp_path.unlink()
+            raise
+        finally:
+            self.zip_file = zipfile.ZipFile(original_path, "r")
+
     def close(self) -> None:
         """Close the ZIP handle and reset state."""
         if self.zip_file:
