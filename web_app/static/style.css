@@ -232,6 +232,58 @@ body {
     line-height: 1.6;
 }
 
+/* Filename section */
+.filename-section {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.filename-section label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.filename-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filename-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    background: #fff;
+    color: #334155;
+    min-width: 0;
+}
+
+.filename-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.filename-ext {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.filename-hint {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
 /* Editor header */
 .editor-header {
     display: flex;

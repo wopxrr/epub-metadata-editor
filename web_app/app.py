@@ -131,8 +131,12 @@ def save():
         handler.close()
 
     # Generate download filename
-    original_name = Path(tmp_path).stem
-    download_name = f"{original_name}_edited.epub"
+    new_filename = data.get("new_filename")
+    if new_filename:
+        download_name = new_filename
+    else:
+        original_name = Path(tmp_path).stem
+        download_name = f"{original_name}_edited.epub"
 
     @after_this_request
     def cleanup(response):

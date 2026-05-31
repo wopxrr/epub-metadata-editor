@@ -34,6 +34,16 @@
                     <span id="version-badge" class="badge hidden"></span>
                 </div>
 
+                <!-- Filename / Rename -->
+                <div class="filename-section">
+                    <label for="filename-input">Filename</label>
+                    <div class="filename-row">
+                        <input type="text" id="filename-input" name="filename" class="filename-input" value="">
+                        <span class="filename-ext">.epub</span>
+                    </div>
+                    <p class="filename-hint">You can rename the file before saving.</p>
+                </div>
+
                 <!-- Cover Section -->
                 <div class="cover-section" id="cover-section">
                     <div class="cover-preview">
@@ -299,6 +309,9 @@
                 populateForm(data.metadata);
                 showVersion(data.version);
                 refreshCover();
+                // Set filename (strip .epub extension for editing)
+                const originalName = data.filename || 'edited';
+                document.getElementById('filename-input').value = originalName.replace(/\.epub$/i, '');
                 setDirty(false);
 
                 uploadSection.classList.add('hidden');
@@ -331,6 +344,7 @@
                 author_sort: document.getElementById('author_sort').value,
                 rating: document.getElementById('rating').value,
                 modification_date: document.getElementById('modification_date').value,
+                new_filename: document.getElementById('filename-input').value.trim() + '.epub',
             };
 
             try {
@@ -368,6 +382,7 @@
             uploadForm.reset();
             dropZoneText.innerHTML = 'Drag & drop EPUB here<br><small>or tap to choose file</small>';
             metadataForm.reset();
+            document.getElementById('filename-input').value = '';
             currentSession = null;
             hasCover = false;
             coverImg.classList.add('hidden');
