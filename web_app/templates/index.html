@@ -97,9 +97,26 @@
                         <input type="text" id="subjects" name="subjects">
                     </div>
 
-                    <div class="form-group">
-                        <label for="identifiers">Identifiers (comma-separated)</label>
-                        <input type="text" id="identifiers" name="identifiers">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="isbn">ISBN</label>
+                            <input type="text" id="isbn" name="isbn" placeholder="e.g. 978-3-16-148410-0">
+                        </div>
+                        <div class="form-group">
+                            <label for="isbn13">ISBN-13</label>
+                            <input type="text" id="isbn13" name="isbn13" placeholder="e.g. 9780316769488">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="asin">ASIN</label>
+                            <input type="text" id="asin" name="asin" placeholder="e.g. B009L94HFY">
+                        </div>
+                        <div class="form-group">
+                            <label for="uuid">UUID</label>
+                            <input type="text" id="uuid" name="uuid" placeholder="e.g. urn:uuid:...">
+                        </div>
                     </div>
 
                     <div class="form-row">
@@ -280,7 +297,7 @@
                 title: document.getElementById('title').value,
                 creators: splitList(document.getElementById('creators').value),
                 language: document.getElementById('language').value,
-                identifiers: splitList(document.getElementById('identifiers').value),
+                identifiers: collectIdentifiers(),
                 description: document.getElementById('description').value,
                 publisher: document.getElementById('publisher').value,
                 date: document.getElementById('date').value,
@@ -410,7 +427,11 @@
             document.getElementById('title').value = meta.title || '';
             document.getElementById('creators').value = (meta.creators || []).join(', ');
             document.getElementById('language').value = meta.language || '';
-            document.getElementById('identifiers').value = (meta.identifiers || []).join(', ');
+            const ids = meta.identifiers || [];
+            document.getElementById('isbn').value = ids.find(i => /^(?:isbn|ISBN)(?::\s*)?\d{9}[\dXx]/i.test(i) || /^\d{9}[\dXx]$/.test(i) || /^\d-?\d{3}-?\d{5}-?[\dXx]$/.test(i)) || '';
+            document.getElementById('isbn13').value = ids.find(i => /^(?:isbn-?13|ISBN-?13)/i.test(i) || /^97[89]\d{10}$/.test(i.replace(/-/g, ''))) || '';
+            document.getElementById('asin').value = ids.find(i => /^(?:asin|ASIN)/i.test(i) || /^B[0-9A-Z]{9}$/.test(i)) || '';
+            document.getElementById('uuid').value = ids.find(i => /^(?:uuid|UUID|urn:uuid)/i.test(i)) || '';
             document.getElementById('description').value = meta.description || '';
             document.getElementById('publisher').value = meta.publisher || '';
             document.getElementById('date').value = meta.date || '';
@@ -427,6 +448,19 @@
         function splitList(str) {
             if (!str) return [];
             return str.split(',').map(s => s.trim()).filter(Boolean);
+        }
+
+        function collectIdentifiers() {
+            const ids = [];
+            const isbn = document.getElementById('isbn').value.trim();
+            const isbn13 = document.getElementById('isbn13').value.trim();
+            const asin = document.getElementById('asin').value.trim();
+            const uuid = document.getElementById('uuid').value.trim();
+            if (isbn) ids.push(isbn);
+            if (isbn13) ids.push(isbn13);
+            if (asin) ids.push(asin);
+            if (uuid) ids.push(uuid);
+            return ids;
         }
 
         // Prompt helper
@@ -518,6 +552,11 @@
                     modification_date: meta.modification_date || meta.modified || meta.Modified || meta.modifiedDate || '',
                 };
                 populateForm(mapped);
+                // Directly set identifier fields if JSON has them separate
+                document.getElementById('isbn').value = meta.isbn || meta.ISBN || meta.isbn_10 || meta.ISBN_10 || '';
+                document.getElementById('isbn13').value = meta.isbn13 || meta.ISBN13 || meta.isbn_13 || meta.ISBN_13 || '';
+                document.getElementById('asin').value = meta.asin || meta.ASIN || '';
+                document.getElementById('uuid').value = meta.uuid || meta.UUID || '';
                 setDirty(true);
                 pasteStatus.textContent = 'Metadata applied from JSON!';
                 pasteStatus.className = 'status success';
