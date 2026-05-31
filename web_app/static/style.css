@@ -385,18 +385,8 @@ body {
 }
 
 .cover-btn {
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
     width: auto;
     min-width: 130px;
-}
-
-.cover-btn input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
 }
 
 /* Danger button */
