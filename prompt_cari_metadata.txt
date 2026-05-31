@@ -1,0 +1,111 @@
+# PROMPT: Cari Metadata Buku Lengkap untuk EPUB
+# Salin teks di bawah ini dan kirim ke AI (ChatGPT, Claude, Gemini, dll)
+# Ganti "[JUDUL BUKU]" dengan judul buku yang ingin dicari
+
+---
+
+Saya memiliki file EPUB yang metadata-nya kurang lengkap. Buku tersebut berjudul: **[JUDUL BUKU]**.
+
+Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google Books, Goodreads, Amazon, Library of Congress, atau Open Library. Kembalikan hasilnya dalam format JSON yang rapi dan presisi seperti di bawah ini.
+
+## Format Output yang Diinginkan (JSON)
+
+```json
+{
+  "title": "Judul Lengkap Buku",
+  "title_sort": "Judul untuk sorting (hilangkan The/A/An di depan)",
+  "creators": ["Nama Penulis Utama", "Nama Penulis Kedua (jika ada)"],
+  "author_sort": "Belakang, Depan (contoh: Lewis, C. S.)",
+  "series": "Nama Seri/Series (kosong jika standalone)",
+  "series_index": "Nomor urut dalam seri (contoh: 1, 2, 3)",
+  "description": "Sinopsis lengkap dalam HTML (gunakan tag <p>, <em>, <h3> jika perlu)",
+  "language": "Kode BCP-47 (contoh: en, id, fr, de, ja)",
+  "publisher": "Nama Penerbit",
+  "date": "Tanggal Publikasi (ISO 8601: YYYY-MM-DD atau YYYY-MM-DDTHH:MM:SS+00:00)",
+  "subjects": ["Genre 1", "Genre 2", "Genre 3"],
+  "identifiers": {
+    "isbn": "ISBN-10 atau ISBN-13 (tanpa tanda hubung)",
+    "isbn_13": "ISBN-13 lengkap",
+    "asin": "ASIN Amazon (jika ada)",
+    "uuid": "UUID unik (generate UUID v4 baru jika tidak ditemukan)"
+  },
+  "rating": "Rating rata-rata dari Goodreads/Amazon (skala 1-10, contoh: 8.0)",
+  "modification_date": "Tanggal terakhir metadata ini di-update (gunakan tanggal hari ini)"
+}
+```
+
+## Catatan Penting:
+
+1. **title_sort**: Hilangkan kata depan seperti "The", "A", "An" dan pindahkan ke belakang dengan koma.
+   - Contoh: `"The Hobbit"` → `"Hobbit, The"`
+   - Contoh: `"A Game of Thrones"` → `"Game of Thrones, A"`
+
+2. **author_sort**: Format harus `"Belakang, Depan"`.
+   - Contoh: `"J. K. Rowling"` → `"Rowling, J. K."`
+   - Contoh: `"C. S. Lewis"` → `"Lewis, C. S."`
+
+3. **description**: Buat sinopsis yang informatif. Gunakan HTML tags yang sesuai:
+   - `<p>` untuk paragraf
+   - `<em>` untuk judul buku di dalam teks
+   - `<h3>` untuk sub-judul seperti "Review" atau "About the Author"
+   - Hindari bullet points; gunakan paragraf saja.
+
+4. **identifiers**: Jika ISBN tidak ditemukan, buatkan UUID v4 yang valid. Jangan biarkan field ini kosong.
+
+5. **subjects**: Gunakan 3–5 tag genre yang relevan. Contoh: `["Juvenile Fiction", "Fantasy & Magic", "Classics"]`.
+
+6. **language**: Gunakan kode BCP-47 standar:
+   - `en` = English
+   - `id` = Indonesian
+   - `fr` = French
+   - `de` = German
+   - `ja` = Japanese
+   - `zh` = Chinese
+   - `ko` = Korean
+
+7. **date**: Tanggal PUBLIKASI buku, bukan tanggal file dibuat.
+
+8. **rating**: Kalau tidak ada rating yang jelas, biarkan kosong string `""`.
+
+9. **modification_date**: Gunakan tanggal hari ini dengan format ISO 8601.
+
+## Contoh Output yang Benar:
+
+```json
+{
+  "title": "The Magician's Nephew: The Chronicles of Narnia",
+  "title_sort": "Magician's Nephew: The Chronicles of Narnia, The",
+  "creators": ["C. S. Lewis"],
+  "author_sort": "Lewis, C. S.",
+  "series": "The Chronicles of Narnia",
+  "series_index": "1",
+  "description": "<p>On a daring quest to save a life, two friends are hurled into another world, where an evil sorceress seeks to enslave them. But then the lion Aslan's song weaves itself into the fabric of a new land, a land that will be known as Narnia.</p><p><em>The Magician's Nephew</em> is the first book in C.S. Lewis's classic series, drawing readers of all ages into a magical land with unforgettable characters for over fifty years.</p>",
+  "language": "en",
+  "publisher": "Del Rey",
+  "date": "2009-10-06",
+  "subjects": ["Juvenile Fiction", "Fantasy & Magic", "Classics", "Adventure"],
+  "identifiers": {
+    "isbn": "9780061715058",
+    "isbn_13": "978-0-06-171505-8",
+    "asin": "B001I45UF2",
+    "uuid": "724fc375-282c-4241-9122-ff0db8d1a928"
+  },
+  "rating": "8.0",
+  "modification_date": "2026-05-30T12:00:00+00:00"
+}
+```
+
+---
+
+## CARA PENGGUNAAN:
+
+1. Salin seluruh teks di atas ke chat AI (ChatGPT, Claude, Gemini, dll).
+2. Ganti `[JUDUL BUKU]` dengan judul buku yang ingin kamu cari.
+3. Kirim prompt-nya.
+4. Copy hasil JSON-nya.
+5. Di EPUB Metadata Editor, paste ke field yang sesuai. Untuk field `identifiers`, copy setiap ID dan pisahkan dengan `;` di form Identifiers.
+
+## Tips:
+- Jika AI tidak bisa generate UUID, gunakan website: https://www.uuidgenerator.net/
+- Jika rating tidak ada, kosongkan saja.
+- Untuk field `subjects` di aplikasi, formatnya adalah tag dipisahkan dengan `;` (semicolon).
