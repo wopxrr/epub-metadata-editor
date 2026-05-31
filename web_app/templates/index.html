@@ -130,11 +130,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="rights">Rights</label>
-                        <input type="text" id="rights" name="rights">
-                    </div>
-
                     <div class="form-row">
                         <div class="form-group">
                             <label for="rating">Rating</label>
@@ -329,7 +324,6 @@
                 description: document.getElementById('description').value,
                 publisher: document.getElementById('publisher').value,
                 date: document.getElementById('date').value,
-                rights: document.getElementById('rights').value,
                 subjects: splitList(document.getElementById('subjects').value),
                 series: document.getElementById('series').value,
                 series_index: document.getElementById('series_index').value,
@@ -463,7 +457,6 @@
             document.getElementById('description').value = meta.description || '';
             document.getElementById('publisher').value = meta.publisher || '';
             document.getElementById('date').value = meta.date || '';
-            document.getElementById('rights').value = meta.rights || '';
             document.getElementById('subjects').value = (meta.subjects || []).join(', ');
             document.getElementById('series').value = meta.series || '';
             document.getElementById('series_index').value = meta.series_index || '';
@@ -644,7 +637,6 @@ Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google
                     description: meta.description || meta.Description || meta.summary || meta.Summary || '',
                     publisher: meta.publisher || meta.Publisher || '',
                     date: meta.date || meta.Date || meta.published || meta.Published || meta.pubDate || '',
-                    rights: meta.rights || meta.Rights || meta.copyright || meta.Copyright || '',
                     subjects: arrOrStr(meta.subjects || meta.Subjects || meta.tags || meta.Tags || meta.genres || meta.Genres || []),
                     series: meta.series || meta.Series || meta.collection || meta.Collection || '',
                     series_index: meta.series_index || meta.seriesIndex || meta.volume || meta.Volume || '',
