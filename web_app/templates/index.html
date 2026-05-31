@@ -56,7 +56,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="creators">Creators (comma-separated)</label>
+                        <label for="creators">Author(s)</label>
                         <input type="text" id="creators" name="creators">
                     </div>
 
@@ -440,7 +440,8 @@
             document.getElementById('series').value = meta.series || '';
             document.getElementById('series_index').value = meta.series_index || '';
             document.getElementById('title_sort').value = meta.title_sort || '';
-            document.getElementById('author_sort').value = meta.author_sort || '';
+            const firstCreator = (meta.creators || [])[0] || '';
+            document.getElementById('author_sort').value = meta.author_sort || autoAuthorSort(firstCreator);
             document.getElementById('rating').value = meta.rating || '';
             document.getElementById('modification_date').value = meta.modification_date || '';
         }
@@ -448,6 +449,15 @@
         function splitList(str) {
             if (!str) return [];
             return str.split(',').map(s => s.trim()).filter(Boolean);
+        }
+
+        function autoAuthorSort(name) {
+            if (!name) return '';
+            name = name.trim();
+            const parts = name.split(/\s+/);
+            if (parts.length < 2) return name;
+            const last = parts.pop();
+            return last + ', ' + parts.join(' ');
         }
 
         function collectIdentifiers() {
