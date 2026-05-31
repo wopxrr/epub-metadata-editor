@@ -18,10 +18,10 @@
             <section id="upload-section" class="card">
                 <h2>1. Upload EPUB</h2>
                 <form id="upload-form" enctype="multipart/form-data">
-                    <label class="file-input-label" for="epub-file">
-                        <span class="file-input-text">Choose EPUB file</span>
+                    <div class="drop-zone" id="drop-zone">
+                        <p class="drop-zone-text">Drag & drop EPUB here<br><small>or tap to choose file</small></p>
                         <input type="file" id="epub-file" name="epub" accept=".epub" required>
-                    </label>
+                    </div>
                     <button type="submit" class="btn btn-primary">Upload & Read Metadata</button>
                 </form>
                 <div id="upload-status" class="status"></div>
@@ -29,7 +29,26 @@
 
             <!-- Editor Section (hidden initially) -->
             <section id="editor-section" class="card hidden">
-                <h2>2. Edit Metadata</h2>
+                <div class="editor-header">
+                    <h2>2. Edit Metadata</h2>
+                    <span id="version-badge" class="badge hidden"></span>
+                </div>
+
+                <!-- Cover Section -->
+                <div class="cover-section" id="cover-section">
+                    <div class="cover-preview">
+                        <img id="cover-img" src="" alt="Cover" class="hidden">
+                        <div id="cover-placeholder" class="cover-placeholder">No Cover</div>
+                    </div>
+                    <div class="cover-actions">
+                        <label class="btn btn-secondary cover-btn">
+                            Replace Cover
+                            <input type="file" id="cover-file" accept="image/*" hidden>
+                        </label>
+                        <button type="button" class="btn btn-danger" id="remove-cover-btn">Remove Cover</button>
+                    </div>
+                    <div id="cover-status" class="status"></div>
+                </div>
                 <form id="metadata-form">
                     <div class="form-group">
                         <label for="title">Title</label>
@@ -116,6 +135,12 @@
                     </div>
                 </form>
                 <div id="save-status" class="status"></div>
+
+                <!-- Prompt Helper -->
+                <div class="prompt-section">
+                    <button type="button" class="btn btn-secondary prompt-btn" id="prompt-btn">Copy AI Metadata Prompt</button>
+                    <p class="prompt-desc">Copy prompt to search for complete metadata using AI (ChatGPT, Claude, etc.)</p>
+                </div>
             </section>
         </main>
 
@@ -126,6 +151,8 @@
 
     <script>
         let currentSession = null;
+        let isDirty = false;
+        let hasCover = false;
 
         const uploadForm = document.getElementById('upload-form');
         const metadataForm = document.getElementById('metadata-form');
@@ -134,11 +161,48 @@
         const uploadStatus = document.getElementById('upload-status');
         const saveStatus = document.getElementById('save-status');
         const fileInput = document.getElementById('epub-file');
-        const fileLabelText = document.querySelector('.file-input-text');
+        const dropZone = document.getElementById('drop-zone');
+        const dropZoneText = document.querySelector('.drop-zone-text');
+        const coverImg = document.getElementById('cover-img');
+        const coverPlaceholder = document.getElementById('cover-placeholder');
+        const coverFile = document.getElementById('cover-file');
+        const removeCoverBtn = document.getElementById('remove-cover-btn');
+        const coverStatus = document.getElementById('cover-status');
+        const versionBadge = document.getElementById('version-badge');
+        const promptBtn = document.getElementById('prompt-btn');
 
+        // Drag & Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
+        });
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, () => dropZone.classList.add('dragover'));
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover'));
+        });
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                fileInput.files = files;
+                dropZoneText.innerHTML = files[0].name + '<br><small>Ready to upload</small>';
+            }
+        });
         fileInput.addEventListener('change', () => {
-            const name = fileInput.files[0]?.name || 'Choose EPUB file';
-            fileLabelText.textContent = name;
+            const name = fileInput.files[0]?.name || 'Drag & drop EPUB here<br><small>or tap to choose file</small>';
+            dropZoneText.innerHTML = name.includes('<') ? name : (name + '<br><small>Ready to upload</small>');
+        });
+
+        // Dirty state
+        function setDirty(val) {
+            isDirty = val;
+        }
+        metadataForm.addEventListener('input', () => setDirty(true));
+        window.addEventListener('beforeunload', (e) => {
+            if (isDirty) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
         });
 
         uploadForm.addEventListener('submit', async (e) => {
@@ -156,7 +220,12 @@
                 }
 
                 currentSession = data.session_id;
+                hasCover = data.has_cover;
                 populateForm(data.metadata);
+                showVersion(data.version);
+                refreshCover();
+                setDirty(false);
+
                 uploadSection.classList.add('hidden');
                 editorSection.classList.remove('hidden');
                 saveStatus.textContent = '';
@@ -214,6 +283,7 @@
 
                 saveStatus.textContent = 'Saved! Check your downloads.';
                 saveStatus.className = 'status success';
+                setDirty(false);
             } catch (err) {
                 saveStatus.textContent = 'Error: ' + err.message;
                 saveStatus.className = 'status error';
@@ -222,14 +292,84 @@
 
         document.getElementById('reset-btn').addEventListener('click', () => {
             uploadForm.reset();
-            fileLabelText.textContent = 'Choose EPUB file';
+            dropZoneText.innerHTML = 'Drag & drop EPUB here<br><small>or tap to choose file</small>';
             metadataForm.reset();
             currentSession = null;
+            hasCover = false;
+            coverImg.classList.add('hidden');
+            coverPlaceholder.classList.remove('hidden');
+            coverImg.src = '';
+            versionBadge.classList.add('hidden');
+            setDirty(false);
             editorSection.classList.add('hidden');
             uploadSection.classList.remove('hidden');
             uploadStatus.textContent = '';
             saveStatus.textContent = '';
+            coverStatus.textContent = '';
         });
+
+        // Cover handlers
+        async function refreshCover() {
+            if (!currentSession || !hasCover) {
+                coverImg.classList.add('hidden');
+                coverPlaceholder.classList.remove('hidden');
+                return;
+            }
+            coverImg.src = `/cover/${currentSession}?t=${Date.now()}`;
+            coverImg.classList.remove('hidden');
+            coverPlaceholder.classList.add('hidden');
+        }
+
+        coverFile.addEventListener('change', async () => {
+            if (!coverFile.files[0]) return;
+            coverStatus.textContent = 'Updating cover...';
+            coverStatus.className = 'status info';
+            const fd = new FormData();
+            fd.append('cover', coverFile.files[0]);
+            try {
+                const res = await fetch(`/update-cover/${currentSession}`, { method: 'POST', body: fd });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed');
+                hasCover = data.has_cover;
+                await refreshCover();
+                coverStatus.textContent = 'Cover updated!';
+                coverStatus.className = 'status success';
+                setDirty(true);
+            } catch (err) {
+                coverStatus.textContent = 'Error: ' + err.message;
+                coverStatus.className = 'status error';
+            }
+            coverFile.value = '';
+        });
+
+        removeCoverBtn.addEventListener('click', async () => {
+            coverStatus.textContent = 'Removing cover...';
+            coverStatus.className = 'status info';
+            try {
+                const res = await fetch(`/remove-cover/${currentSession}`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed');
+                hasCover = false;
+                coverImg.classList.add('hidden');
+                coverPlaceholder.classList.remove('hidden');
+                coverImg.src = '';
+                coverStatus.textContent = 'Cover removed.';
+                coverStatus.className = 'status success';
+                setDirty(true);
+            } catch (err) {
+                coverStatus.textContent = 'Error: ' + err.message;
+                coverStatus.className = 'status error';
+            }
+        });
+
+        function showVersion(ver) {
+            if (ver) {
+                versionBadge.textContent = 'EPUB ' + ver;
+                versionBadge.classList.remove('hidden');
+            } else {
+                versionBadge.classList.add('hidden');
+            }
+        }
 
         function populateForm(meta) {
             document.getElementById('title').value = meta.title || '';
@@ -253,6 +393,27 @@
             if (!str) return [];
             return str.split(',').map(s => s.trim()).filter(Boolean);
         }
+
+        // Prompt helper
+        promptBtn.addEventListener('click', () => {
+            const title = document.getElementById('title').value || 'Unknown Title';
+            const prompt = `Saya memiliki file EPUB yang metadata-nya kurang lengkap. Buku tersebut berjudul: **${title}**.\n\nTolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google Books, Goodreads, Amazon, Library of Congress, atau Open Library. Kembalikan hasilnya dalam format JSON yang rapi dan presisi dengan field: title, title_sort, creators, author_sort, series, series_index, description, language, publisher, date, subjects, identifiers (isbn, isbn_13, asin, uuid), rating, modification_date.`;
+            navigator.clipboard.writeText(prompt).then(() => {
+                const orig = promptBtn.textContent;
+                promptBtn.textContent = 'Copied!';
+                setTimeout(() => promptBtn.textContent = orig, 2000);
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = prompt;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                const orig = promptBtn.textContent;
+                promptBtn.textContent = 'Copied!';
+                setTimeout(() => promptBtn.textContent = orig, 2000);
+            });
+        });
     </script>
 </body>
 </html>

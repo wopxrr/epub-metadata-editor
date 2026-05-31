@@ -80,6 +80,9 @@ def upload():
             "modification_date": meta.modification_date,
         },
         "filename": file.filename,
+        "version": meta.version,
+        "cover_id": meta.cover_id,
+        "has_cover": bool(meta.cover_id),
     })
 
 
@@ -144,6 +147,80 @@ def save():
         download_name=download_name,
         mimetype="application/epub+zip",
     )
+
+
+@app.route("/cover/<session_id>", methods=["GET"])
+def get_cover(session_id):
+    if session_id not in _temp_store:
+        return jsonify({"error": "Invalid session"}), 400
+    tmp_path = _temp_store[session_id]
+    if not os.path.exists(tmp_path):
+        return jsonify({"error": "File no longer available"}), 400
+
+    handler = EpubHandler()
+    try:
+        handler.open_epub(tmp_path)
+        image_bytes, mimetype = handler.get_cover_image_bytes()
+        if image_bytes is None:
+            return jsonify({"error": "No cover image found"}), 404
+        from flask import Response
+        return Response(image_bytes, mimetype=mimetype or "image/jpeg")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    finally:
+        handler.close()
+
+
+@app.route("/update-cover/<session_id>", methods=["POST"])
+def update_cover(session_id):
+    if session_id not in _temp_store:
+        return jsonify({"error": "Invalid session"}), 400
+    if "cover" not in request.files:
+        return jsonify({"error": "No cover image uploaded"}), 400
+
+    file = request.files["cover"]
+    if file.filename == "":
+        return jsonify({"error": "Empty filename"}), 400
+
+    image_bytes = file.read()
+    if not image_bytes:
+        return jsonify({"error": "Empty file"}), 400
+
+    tmp_path = _temp_store[session_id]
+    ext = Path(file.filename).suffix.lower()
+    mime_map = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp"}
+    mimetype = mime_map.get(ext, "image/jpeg")
+    filename = f"cover{ext if ext else '.jpg'}"
+
+    handler = EpubHandler()
+    try:
+        handler.open_epub(tmp_path)
+        handler.set_cover_image(image_bytes, filename, mimetype)
+        meta = handler.get_metadata()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    finally:
+        handler.close()
+
+    return jsonify({"success": True, "cover_id": meta.cover_id, "has_cover": bool(meta.cover_id)})
+
+
+@app.route("/remove-cover/<session_id>", methods=["POST"])
+def remove_cover(session_id):
+    if session_id not in _temp_store:
+        return jsonify({"error": "Invalid session"}), 400
+
+    tmp_path = _temp_store[session_id]
+    handler = EpubHandler()
+    try:
+        handler.open_epub(tmp_path)
+        handler.remove_cover_image()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    finally:
+        handler.close()
+
+    return jsonify({"success": True, "has_cover": False})
 
 
 def _cleanup_old_files():
