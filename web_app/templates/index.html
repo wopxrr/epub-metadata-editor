@@ -217,6 +217,23 @@
             </div>
         </div>
     </div>
+
+        <!-- Bottom Toolbar -->
+        <div class="bottom-toolbar hidden" id="bottom-toolbar">
+            <button type="button" class="toolbar-btn" id="undo-btn" title="Undo">
+                <span class="toolbar-icon">&#8630;</span>
+                <span class="toolbar-label">Undo</span>
+            </button>
+            <button type="button" class="toolbar-btn" id="redo-btn" title="Redo">
+                <span class="toolbar-icon">&#8631;</span>
+                <span class="toolbar-label">Redo</span>
+            </button>
+            <div class="toolbar-divider"></div>
+            <button type="button" class="toolbar-btn toolbar-btn-danger" id="discard-btn" title="Discard File">
+                <span class="toolbar-icon">&#10005;</span>
+                <span class="toolbar-label">Discard</span>
+            </button>
+        </div>
         </main>
 
         <footer class="app-footer">
@@ -255,6 +272,10 @@
         const jsonInput = document.getElementById('json-input');
         const applyJsonBtn = document.getElementById('apply-json-btn');
         const cancelJsonBtn = document.getElementById('cancel-json-btn');
+        const bottomToolbar = document.getElementById('bottom-toolbar');
+        const undoBtn = document.getElementById('undo-btn');
+        const redoBtn = document.getElementById('redo-btn');
+        const discardBtn = document.getElementById('discard-btn');
 
         // Drag & Drop
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
@@ -683,6 +704,106 @@ Please search for complete metadata for this book from sources such as Google Bo
             if (typeof val === 'string' && val.trim()) return [val.trim()];
             return [];
         }
+
+        // Undo / Redo history
+        const formFields = ['title','creators','title_sort','author_sort','language','date','description','publisher','subjects','isbn','isbn13','asin','uuid','series','series_index','rating','modification_date','filename-input'];
+        let historyStack = [];
+        let historyIndex = -1;
+        let historyTimeout = null;
+
+        function captureFormState() {
+            const state = {};
+            formFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) state[id] = el.value;
+            });
+            return state;
+        }
+
+        function restoreFormState(state) {
+            if (!state) return;
+            formFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && id in state) el.value = state[id];
+            });
+        }
+
+        function pushHistory() {
+            const state = captureFormState();
+            // If we are not at the end, truncate future history
+            if (historyIndex < historyStack.length - 1) {
+                historyStack = historyStack.slice(0, historyIndex + 1);
+            }
+            // Avoid duplicate consecutive states
+            const last = historyStack[historyIndex];
+            if (last && JSON.stringify(last) === JSON.stringify(state)) return;
+            historyStack.push(state);
+            historyIndex++;
+            updateToolbar();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreFormState(historyStack[historyIndex]);
+                setDirty(true);
+                updateToolbar();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < historyStack.length - 1) {
+                historyIndex++;
+                restoreFormState(historyStack[historyIndex]);
+                setDirty(true);
+                updateToolbar();
+            }
+        }
+
+        function updateToolbar() {
+            undoBtn.disabled = historyIndex <= 0;
+            redoBtn.disabled = historyIndex >= historyStack.length - 1;
+        }
+
+        function resetHistory() {
+            historyStack = [];
+            historyIndex = -1;
+            updateToolbar();
+        }
+
+        // Capture history on input (debounced)
+        metadataForm.addEventListener('input', () => {
+            if (historyTimeout) clearTimeout(historyTimeout);
+            historyTimeout = setTimeout(pushHistory, 400);
+        });
+
+        // Also capture after populateForm and clean metadata
+        const originalPopulateForm = populateForm;
+        populateForm = function(meta) {
+            originalPopulateForm(meta);
+            // Defer so DOM values are set
+            setTimeout(() => { pushHistory(); }, 0);
+        };
+
+        // Toolbar buttons
+        undoBtn.addEventListener('click', undo);
+        redoBtn.addEventListener('click', redo);
+
+        discardBtn.addEventListener('click', () => {
+            if (!confirm('Discard this file and return to upload?\n\nAny unsaved changes will be lost.')) return;
+            document.getElementById('reset-btn').click();
+        });
+
+        // Show/hide toolbar with editor section
+        const editorObserver = new MutationObserver(() => {
+            if (editorSection.classList.contains('hidden')) {
+                bottomToolbar.classList.add('hidden');
+                resetHistory();
+            } else {
+                bottomToolbar.classList.remove('hidden');
+            }
+        });
+        editorObserver.observe(editorSection, { attributes: true, attributeFilter: ['class'] });
     </script>
 </body>
 </html>
