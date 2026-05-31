@@ -412,8 +412,7 @@ body {
 }
 
 .prompt-btn {
-    width: auto;
-    min-width: 220px;
+    width: 100%;
 }
 
 .prompt-desc {
@@ -469,8 +468,7 @@ body {
 }
 
 .paste-btn {
-    width: auto;
-    min-width: 220px;
+    width: 100%;
 }
 
 .paste-desc {
@@ -488,8 +486,7 @@ body {
 }
 
 .clean-btn {
-    width: auto;
-    min-width: 220px;
+    width: 100%;
 }
 
 .clean-desc {
