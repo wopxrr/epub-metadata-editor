@@ -466,7 +466,65 @@
         // Prompt helper
         promptBtn.addEventListener('click', () => {
             const title = document.getElementById('title').value || 'Unknown Title';
-            const prompt = `Saya memiliki file EPUB yang metadata-nya kurang lengkap. Buku tersebut berjudul: **${title}**.\n\nTolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google Books, Goodreads, Amazon, Library of Congress, atau Open Library. Kembalikan hasilnya dalam format JSON yang rapi dan presisi dengan field: title, title_sort, creators, author_sort, series, series_index, description, language, publisher, date, subjects, identifiers (isbn, isbn_13, asin, uuid), rating, modification_date.`;
+            const creators = document.getElementById('creators').value || 'unknown';
+            const publisher = document.getElementById('publisher').value || 'unknown';
+            const date = document.getElementById('date').value || 'unknown';
+            const isbn = document.getElementById('isbn').value || 'unknown';
+            const isbn13 = document.getElementById('isbn13').value || 'unknown';
+            const asin = document.getElementById('asin').value || 'unknown';
+            const description = document.getElementById('description').value || 'unknown';
+            const existing = [];
+            if (creators !== 'unknown') existing.push(`Penulis: ${creators}`);
+            if (publisher !== 'unknown') existing.push(`Penerbit: ${publisher}`);
+            if (date !== 'unknown') existing.push(`Tanggal: ${date}`);
+            if (isbn !== 'unknown') existing.push(`ISBN: ${isbn}`);
+            if (isbn13 !== 'unknown') existing.push(`ISBN-13: ${isbn13}`);
+            if (asin !== 'unknown') existing.push(`ASIN: ${asin}`);
+            if (description !== 'unknown') existing.push(`Deskripsi: ${description.substring(0, 200)}${description.length > 200 ? '...' : ''}`);
+
+            const prompt = `Saya memiliki file EPUB yang metadata-nya kurang lengkap. Buku tersebut berjudul: **${title}**.
+
+Berikut adalah metadata yang sudah saya miliki (tolong lengkapi yang kosong atau perbaiki jika salah):
+${existing.length ? existing.map(s => '- ' + s).join('\n') : '- (belum ada metadata)'}
+
+Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google Books, Goodreads, Amazon, Library of Congress, atau Open Library. Kembalikan hasilnya dalam format JSON yang rapi dan presisi seperti di bawah ini.
+
+## Format Output (JSON)
+
+\`\`\`json
+{
+  "title": "Judul Lengkap Buku",
+  "title_sort": "Judul untuk sorting (hilangkan The/A/An di depan)",
+  "creators": ["Nama Penulis Utama", "Nama Penulis Kedua (jika ada)"],
+  "author_sort": "Belakang, Depan (contoh: Lewis, C. S.)",
+  "series": "Nama Seri/Series (kosong jika standalone)",
+  "series_index": "Nomor urut dalam seri (contoh: 1, 2, 3)",
+  "description": "Sinopsis lengkap dalam HTML (gunakan tag <p>, <em>, <h3> jika perlu)",
+  "language": "Kode BCP-47 (contoh: en, id, fr, de, ja)",
+  "publisher": "Nama Penerbit",
+  "date": "Tanggal Publikasi (ISO 8601: YYYY-MM-DD)",
+  "subjects": ["Genre 1", "Genre 2", "Genre 3"],
+  "identifiers": {
+    "isbn": "ISBN-10 atau ISBN-13 (tanpa tanda hubung)",
+    "isbn_13": "ISBN-13 lengkap",
+    "asin": "ASIN Amazon (jika ada)",
+    "uuid": "UUID unik (generate UUID v4 baru jika tidak ditemukan)"
+  },
+  "rating": "Rating rata-rata dari Goodreads/Amazon (skala 1-10, contoh: 8.0)",
+  "modification_date": "Tanggal terakhir metadata ini di-update (gunakan tanggal hari ini)"
+}
+\`\`\`
+
+## Catatan Penting:
+1. **title_sort**: Hilangkan kata depan seperti "The", "A", "An" dan pindahkan ke belakang dengan koma. Contoh: "The Hobbit" → "Hobbit, The"
+2. **author_sort**: Format harus "Belakang, Depan". Contoh: "J. K. Rowling" → "Rowling, J. K."
+3. **description**: Buat sinopsis yang informatif. Gunakan HTML tags <p>, <em>, <h3>.
+4. **identifiers**: Jika ISBN tidak ditemukan, buatkan UUID v4 yang valid.
+5. **subjects**: Gunakan 3–5 tag genre yang relevan.
+6. **language**: Gunakan kode BCP-47 standar (en, id, fr, de, ja, zh, ko).
+7. **date**: Tanggal PUBLIKASI buku, bukan tanggal file dibuat.
+8. **rating**: Kalau tidak ada rating yang jelas, biarkan kosong string "".
+9. **modification_date**: Gunakan tanggal hari ini dengan format ISO 8601.`;
             navigator.clipboard.writeText(prompt).then(() => {
                 const orig = promptBtn.textContent;
                 promptBtn.textContent = 'Copied!';
