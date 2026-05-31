@@ -142,6 +142,13 @@
                     <p class="prompt-desc">Copy prompt to search for complete metadata using AI (ChatGPT, Claude, etc.)</p>
                 </div>
 
+                <!-- Paste JSON -->
+                <div class="paste-section">
+                    <button type="button" class="btn btn-secondary paste-btn" id="paste-json-btn">Paste JSON Metadata</button>
+                    <p class="paste-desc">Paste JSON metadata from AI (ChatGPT, Claude, etc.) to auto-fill the form.</p>
+                    <div id="paste-status" class="status"></div>
+                </div>
+
                 <!-- Clean Metadata -->
                 <div class="clean-section">
                     <button type="button" class="btn btn-danger clean-btn" id="clean-btn">Clean All Metadata</button>
@@ -149,6 +156,19 @@
                     <div id="clean-status" class="status"></div>
                 </div>
             </section>
+
+    <!-- JSON Paste Modal -->
+    <div id="json-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <h3>Paste JSON Metadata</h3>
+            <textarea id="json-input" class="json-textarea" placeholder='{"title": "...", "creators": ["..."], ...}'></textarea>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" id="apply-json-btn">Apply to Form</button>
+                <button type="button" class="btn btn-secondary" id="cancel-json-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
         </main>
 
         <footer class="app-footer">
@@ -179,6 +199,12 @@
         const promptBtn = document.getElementById('prompt-btn');
         const cleanBtn = document.getElementById('clean-btn');
         const cleanStatus = document.getElementById('clean-status');
+        const pasteJsonBtn = document.getElementById('paste-json-btn');
+        const pasteStatus = document.getElementById('paste-status');
+        const jsonModal = document.getElementById('json-modal');
+        const jsonInput = document.getElementById('json-input');
+        const applyJsonBtn = document.getElementById('apply-json-btn');
+        const cancelJsonBtn = document.getElementById('cancel-json-btn');
 
         // Drag & Drop
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
@@ -446,6 +472,69 @@
                 cleanStatus.className = 'status error';
             }
         });
+
+        // JSON Paste Modal
+        pasteJsonBtn.addEventListener('click', () => {
+            jsonModal.classList.remove('hidden');
+            jsonInput.value = '';
+            jsonInput.focus();
+        });
+
+        cancelJsonBtn.addEventListener('click', () => {
+            jsonModal.classList.add('hidden');
+            jsonInput.value = '';
+        });
+
+        document.querySelector('.modal-backdrop').addEventListener('click', () => {
+            jsonModal.classList.add('hidden');
+            jsonInput.value = '';
+        });
+
+        applyJsonBtn.addEventListener('click', () => {
+            const raw = jsonInput.value.trim();
+            if (!raw) {
+                pasteStatus.textContent = 'Please paste JSON first.';
+                pasteStatus.className = 'status error';
+                jsonModal.classList.add('hidden');
+                return;
+            }
+            try {
+                const meta = JSON.parse(raw);
+                const mapped = {
+                    title: meta.title || meta.Title || '',
+                    creators: arrOrStr(meta.creators || meta.Creators || meta.authors || meta.Authors || meta.author || meta.Author || []),
+                    language: meta.language || meta.Language || '',
+                    identifiers: arrOrStr(meta.identifiers || meta.Identifiers || meta.isbn || meta.ISBN || []),
+                    description: meta.description || meta.Description || meta.summary || meta.Summary || '',
+                    publisher: meta.publisher || meta.Publisher || '',
+                    date: meta.date || meta.Date || meta.published || meta.Published || meta.pubDate || '',
+                    rights: meta.rights || meta.Rights || meta.copyright || meta.Copyright || '',
+                    subjects: arrOrStr(meta.subjects || meta.Subjects || meta.tags || meta.Tags || meta.genres || meta.Genres || []),
+                    series: meta.series || meta.Series || meta.collection || meta.Collection || '',
+                    series_index: meta.series_index || meta.seriesIndex || meta.volume || meta.Volume || '',
+                    title_sort: meta.title_sort || meta.titleSort || meta.file_as || meta.fileAs || '',
+                    author_sort: meta.author_sort || meta.authorSort || meta.sort_author || meta.sortAuthor || '',
+                    rating: meta.rating || meta.Rating || '',
+                    modification_date: meta.modification_date || meta.modified || meta.Modified || meta.modifiedDate || '',
+                };
+                populateForm(mapped);
+                setDirty(true);
+                pasteStatus.textContent = 'Metadata applied from JSON!';
+                pasteStatus.className = 'status success';
+                jsonModal.classList.add('hidden');
+                jsonInput.value = '';
+            } catch (err) {
+                pasteStatus.textContent = 'Invalid JSON: ' + err.message;
+                pasteStatus.className = 'status error';
+                jsonModal.classList.add('hidden');
+            }
+        });
+
+        function arrOrStr(val) {
+            if (Array.isArray(val)) return val;
+            if (typeof val === 'string' && val.trim()) return [val.trim()];
+            return [];
+        }
     </script>
 </body>
 </html>
