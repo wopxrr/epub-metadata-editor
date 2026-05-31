@@ -511,57 +511,57 @@
             const asin = document.getElementById('asin').value || 'unknown';
             const description = document.getElementById('description').value || 'unknown';
             const existing = [];
-            if (creators !== 'unknown') existing.push(`Penulis: ${creators}`);
-            if (publisher !== 'unknown') existing.push(`Penerbit: ${publisher}`);
-            if (date !== 'unknown') existing.push(`Tanggal: ${date}`);
+            if (creators !== 'unknown') existing.push(`Author(s): ${creators}`);
+            if (publisher !== 'unknown') existing.push(`Publisher: ${publisher}`);
+            if (date !== 'unknown') existing.push(`Date: ${date}`);
             if (isbn !== 'unknown') existing.push(`ISBN: ${isbn}`);
             if (isbn13 !== 'unknown') existing.push(`ISBN-13: ${isbn13}`);
             if (asin !== 'unknown') existing.push(`ASIN: ${asin}`);
-            if (description !== 'unknown') existing.push(`Deskripsi: ${description.substring(0, 200)}${description.length > 200 ? '...' : ''}`);
+            if (description !== 'unknown') existing.push(`Description: ${description.substring(0, 200)}${description.length > 200 ? '...' : ''}`);
 
-            const prompt = `Saya memiliki file EPUB yang metadata-nya kurang lengkap. Buku tersebut berjudul: **${title}**.
+            const prompt = `I have an EPUB file with incomplete metadata. The book title is: **${title}**.
 
-Berikut adalah metadata yang sudah saya miliki (tolong lengkapi yang kosong atau perbaiki jika salah):
-${existing.length ? existing.map(s => '- ' + s).join('\n') : '- (belum ada metadata)'}
+Here is the partial metadata I already have (please fill in the missing fields and correct any errors):
+${existing.length ? existing.map(s => '- ' + s).join('\n') : '- (no existing metadata)'}
 
-Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google Books, Goodreads, Amazon, Library of Congress, atau Open Library. Kembalikan hasilnya dalam format JSON yang rapi dan presisi seperti di bawah ini.
+Please search for complete metadata for this book from sources such as Google Books, Goodreads, Amazon, Library of Congress, or Open Library. Return the result in a clean, precise JSON format as shown below.
 
-## Format Output (JSON)
+## Output Format (JSON)
 
 \`\`\`json
 {
-  "title": "Judul Lengkap Buku",
-  "title_sort": "Judul untuk sorting (hilangkan The/A/An di depan)",
-  "creators": ["Nama Penulis Utama", "Nama Penulis Kedua (jika ada)"],
-  "author_sort": "Belakang, Depan (contoh: Lewis, C. S.)",
-  "series": "Nama Seri/Series (kosong jika standalone)",
-  "series_index": "Nomor urut dalam seri (contoh: 1, 2, 3)",
-  "description": "Sinopsis lengkap dalam HTML (gunakan tag <p>, <em>, <h3> jika perlu)",
-  "language": "Kode BCP-47 (contoh: en, id, fr, de, ja)",
-  "publisher": "Nama Penerbit",
-  "date": "Tanggal Publikasi (ISO 8601: YYYY-MM-DD)",
+  "title": "Full Book Title",
+  "title_sort": "Title for sorting (remove leading The/A/An)",
+  "creators": ["Primary Author", "Secondary Author (if any)"],
+  "author_sort": "Last, First (example: Lewis, C. S.)",
+  "series": "Series Name (empty if standalone)",
+  "series_index": "Number in series (example: 1, 2, 3)",
+  "description": "Full synopsis in HTML (use <p>, <em>, <h3> if needed)",
+  "language": "BCP-47 code (example: en, id, fr, de, ja)",
+  "publisher": "Publisher Name",
+  "date": "Publication Date (ISO 8601: YYYY-MM-DD)",
   "subjects": ["Genre 1", "Genre 2", "Genre 3"],
   "identifiers": {
-    "isbn": "ISBN-10 atau ISBN-13 (tanpa tanda hubung)",
-    "isbn_13": "ISBN-13 lengkap",
-    "asin": "ASIN Amazon (jika ada)",
-    "uuid": "UUID unik (generate UUID v4 baru jika tidak ditemukan)"
+    "isbn": "ISBN-10 or ISBN-13 (no hyphens)",
+    "isbn_13": "Full ISBN-13",
+    "asin": "Amazon ASIN (if available)",
+    "uuid": "Unique UUID (generate new UUID v4 if not found)"
   },
-  "rating": "Rating rata-rata dari Goodreads/Amazon (skala 1-10, contoh: 8.0)",
-  "modification_date": "Tanggal terakhir metadata ini di-update (gunakan tanggal hari ini)"
+  "rating": "Average rating from Goodreads/Amazon (scale 1-10, example: 8.0)",
+  "modification_date": "Date this metadata was last updated (use today's date)"
 }
 \`\`\`
 
-## Catatan Penting:
-1. **title_sort**: Hilangkan kata depan seperti "The", "A", "An" dan pindahkan ke belakang dengan koma. Contoh: "The Hobbit" → "Hobbit, The"
-2. **author_sort**: Format harus "Belakang, Depan". Contoh: "J. K. Rowling" → "Rowling, J. K."
-3. **description**: Buat sinopsis yang informatif. Gunakan HTML tags <p>, <em>, <h3>.
-4. **identifiers**: Jika ISBN tidak ditemukan, buatkan UUID v4 yang valid.
-5. **subjects**: Gunakan 3–5 tag genre yang relevan.
-6. **language**: Gunakan kode BCP-47 standar (en, id, fr, de, ja, zh, ko).
-7. **date**: Tanggal PUBLIKASI buku, bukan tanggal file dibuat.
-8. **rating**: Kalau tidak ada rating yang jelas, biarkan kosong string "".
-9. **modification_date**: Gunakan tanggal hari ini dengan format ISO 8601.`;
+## Important Notes:
+1. **title_sort**: Remove leading words like "The", "A", "An" and move them to the end with a comma. Example: "The Hobbit" → "Hobbit, The"
+2. **author_sort**: Format must be "Last, First". Example: "J. K. Rowling" → "Rowling, J. K."
+3. **description**: Write an informative synopsis. Use HTML tags <p>, <em>, <h3>.
+4. **identifiers**: If no ISBN is found, generate a valid UUID v4.
+5. **subjects**: Use 3–5 relevant genre tags.
+6. **language**: Use standard BCP-47 codes (en, id, fr, de, ja, zh, ko).
+7. **date**: The BOOK PUBLICATION date, not the file creation date.
+8. **rating**: If no clear rating exists, leave as empty string "".
+9. **modification_date**: Use today's date in ISO 8601 format.`;
             navigator.clipboard.writeText(prompt).then(() => {
                 const orig = promptBtn.textContent;
                 promptBtn.textContent = 'Copied!';
@@ -594,7 +594,7 @@ Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google
                 hasCover = data.has_cover;
                 refreshCover();
                 setDirty(true);
-                cleanStatus.textContent = 'All metadata cleaned! You can now fill in new metadata.';
+                cleanStatus.textContent = 'All metadata has been cleared. You can now enter new metadata.';
                 cleanStatus.className = 'status success';
             } catch (err) {
                 cleanStatus.textContent = 'Error: ' + err.message;
@@ -622,7 +622,7 @@ Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google
         applyJsonBtn.addEventListener('click', () => {
             const raw = jsonInput.value.trim();
             if (!raw) {
-                pasteStatus.textContent = 'Please paste JSON first.';
+                pasteStatus.textContent = 'Please paste JSON metadata first.';
                 pasteStatus.className = 'status error';
                 jsonModal.classList.add('hidden');
                 return;
@@ -652,7 +652,7 @@ Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google
                 document.getElementById('asin').value = meta.asin || meta.ASIN || '';
                 document.getElementById('uuid').value = meta.uuid || meta.UUID || '';
                 setDirty(true);
-                pasteStatus.textContent = 'Metadata applied from JSON!';
+                pasteStatus.textContent = 'Metadata successfully applied from JSON!';
                 pasteStatus.className = 'status success';
                 jsonModal.classList.add('hidden');
                 jsonInput.value = '';

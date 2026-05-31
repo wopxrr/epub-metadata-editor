@@ -1,60 +1,60 @@
-# PROMPT: Cari Metadata Buku Lengkap untuk EPUB
-# Salin teks di bawah ini dan kirim ke AI (ChatGPT, Claude, Gemini, dll)
-# Ganti "[JUDUL BUKU]" dengan judul buku yang ingin dicari
+# PROMPT: Find Complete Book Metadata for EPUB
+# Copy the text below and send it to AI (ChatGPT, Claude, Gemini, etc.)
+# Replace "[BOOK TITLE]" with the title of the book you want to search
 
 ---
 
-Saya memiliki file EPUB yang metadata-nya kurang lengkap. Buku tersebut berjudul: **[JUDUL BUKU]**.
+I have an EPUB file with incomplete metadata. The book title is: **[BOOK TITLE]**.
 
-Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google Books, Goodreads, Amazon, Library of Congress, atau Open Library. Kembalikan hasilnya dalam format JSON yang rapi dan presisi seperti di bawah ini.
+Please search for complete metadata for this book from sources such as Google Books, Goodreads, Amazon, Library of Congress, or Open Library. Return the result in a clean, precise JSON format as shown below.
 
-## Format Output yang Diinginkan (JSON)
+## Desired Output Format (JSON)
 
 ```json
 {
-  "title": "Judul Lengkap Buku",
-  "title_sort": "Judul untuk sorting (hilangkan The/A/An di depan)",
-  "creators": ["Nama Penulis Utama", "Nama Penulis Kedua (jika ada)"],
-  "author_sort": "Belakang, Depan (contoh: Lewis, C. S.)",
-  "series": "Nama Seri/Series (kosong jika standalone)",
-  "series_index": "Nomor urut dalam seri (contoh: 1, 2, 3)",
-  "description": "Sinopsis lengkap dalam HTML (gunakan tag <p>, <em>, <h3> jika perlu)",
-  "language": "Kode BCP-47 (contoh: en, id, fr, de, ja)",
-  "publisher": "Nama Penerbit",
-  "date": "Tanggal Publikasi (ISO 8601: YYYY-MM-DD atau YYYY-MM-DDTHH:MM:SS+00:00)",
+  "title": "Full Book Title",
+  "title_sort": "Title for sorting (remove leading The/A/An)",
+  "creators": ["Primary Author", "Secondary Author (if any)"],
+  "author_sort": "Last, First (example: Lewis, C. S.)",
+  "series": "Series Name (empty if standalone)",
+  "series_index": "Number in series (example: 1, 2, 3)",
+  "description": "Full synopsis in HTML (use <p>, <em>, <h3> if needed)",
+  "language": "BCP-47 code (example: en, id, fr, de, ja)",
+  "publisher": "Publisher Name",
+  "date": "Publication Date (ISO 8601: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS+00:00)",
   "subjects": ["Genre 1", "Genre 2", "Genre 3"],
   "identifiers": {
-    "isbn": "ISBN-10 atau ISBN-13 (tanpa tanda hubung)",
-    "isbn_13": "ISBN-13 lengkap",
-    "asin": "ASIN Amazon (jika ada)",
-    "uuid": "UUID unik (generate UUID v4 baru jika tidak ditemukan)"
+    "isbn": "ISBN-10 or ISBN-13 (no hyphens)",
+    "isbn_13": "Full ISBN-13",
+    "asin": "Amazon ASIN (if available)",
+    "uuid": "Unique UUID (generate new UUID v4 if not found)"
   },
-  "rating": "Rating rata-rata dari Goodreads/Amazon (skala 1-10, contoh: 8.0)",
-  "modification_date": "Tanggal terakhir metadata ini di-update (gunakan tanggal hari ini)"
+  "rating": "Average rating from Goodreads/Amazon (scale 1-10, example: 8.0)",
+  "modification_date": "Date this metadata was last updated (use today's date)"
 }
 ```
 
-## Catatan Penting:
+## Important Notes:
 
-1. **title_sort**: Hilangkan kata depan seperti "The", "A", "An" dan pindahkan ke belakang dengan koma.
-   - Contoh: `"The Hobbit"` → `"Hobbit, The"`
-   - Contoh: `"A Game of Thrones"` → `"Game of Thrones, A"`
+1. **title_sort**: Remove leading words like "The", "A", "An" and move them to the end with a comma.
+   - Example: `"The Hobbit"` → `"Hobbit, The"`
+   - Example: `"A Game of Thrones"` → `"Game of Thrones, A"`
 
-2. **author_sort**: Format harus `"Belakang, Depan"`.
-   - Contoh: `"J. K. Rowling"` → `"Rowling, J. K."`
-   - Contoh: `"C. S. Lewis"` → `"Lewis, C. S."`
+2. **author_sort**: Format must be `"Last, First"`.
+   - Example: `"J. K. Rowling"` → `"Rowling, J. K."`
+   - Example: `"C. S. Lewis"` → `"Lewis, C. S."`
 
-3. **description**: Buat sinopsis yang informatif. Gunakan HTML tags yang sesuai:
-   - `<p>` untuk paragraf
-   - `<em>` untuk judul buku di dalam teks
-   - `<h3>` untuk sub-judul seperti "Review" atau "About the Author"
-   - Hindari bullet points; gunakan paragraf saja.
+3. **description**: Write an informative synopsis. Use appropriate HTML tags:
+   - `<p>` for paragraphs
+   - `<em>` for book titles within the text
+   - `<h3>` for sub-headings like "Review" or "About the Author"
+   - Avoid bullet points; use paragraphs only.
 
-4. **identifiers**: Jika ISBN tidak ditemukan, buatkan UUID v4 yang valid. Jangan biarkan field ini kosong.
+4. **identifiers**: If no ISBN is found, generate a valid UUID v4. Do not leave this field empty.
 
-5. **subjects**: Gunakan 3–5 tag genre yang relevan. Contoh: `["Juvenile Fiction", "Fantasy & Magic", "Classics"]`.
+5. **subjects**: Use 3–5 relevant genre tags. Example: `["Juvenile Fiction", "Fantasy & Magic", "Classics"]`.
 
-6. **language**: Gunakan kode BCP-47 standar:
+6. **language**: Use standard BCP-47 codes:
    - `en` = English
    - `id` = Indonesian
    - `fr` = French
@@ -63,13 +63,13 @@ Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google
    - `zh` = Chinese
    - `ko` = Korean
 
-7. **date**: Tanggal PUBLIKASI buku, bukan tanggal file dibuat.
+7. **date**: The BOOK PUBLICATION date, not the file creation date.
 
-8. **rating**: Kalau tidak ada rating yang jelas, biarkan kosong string `""`.
+8. **rating**: If no clear rating exists, leave as empty string `""`.
 
-9. **modification_date**: Gunakan tanggal hari ini dengan format ISO 8601.
+9. **modification_date**: Use today's date in ISO 8601 format.
 
-## Contoh Output yang Benar:
+## Correct Output Example:
 
 ```json
 {
@@ -97,15 +97,15 @@ Tolong cari informasi metadata lengkap untuk buku ini dari sumber seperti Google
 
 ---
 
-## CARA PENGGUNAAN:
+## HOW TO USE:
 
-1. Salin seluruh teks di atas ke chat AI (ChatGPT, Claude, Gemini, dll).
-2. Ganti `[JUDUL BUKU]` dengan judul buku yang ingin kamu cari.
-3. Kirim prompt-nya.
-4. Copy hasil JSON-nya.
-5. Di EPUB Metadata Editor, paste ke field yang sesuai. Untuk field `identifiers`, copy setiap ID dan pisahkan dengan `;` di form Identifiers.
+1. Copy the entire text above into the AI chat (ChatGPT, Claude, Gemini, etc.).
+2. Replace `[BOOK TITLE]` with the title of the book you want to search.
+3. Send the prompt.
+4. Copy the resulting JSON.
+5. In EPUB Metadata Editor, paste into the appropriate fields. For the `identifiers` field, copy each ID and separate them with `;` in the Identifiers form.
 
 ## Tips:
-- Jika AI tidak bisa generate UUID, gunakan website: https://www.uuidgenerator.net/
-- Jika rating tidak ada, kosongkan saja.
-- Untuk field `subjects` di aplikasi, formatnya adalah tag dipisahkan dengan `;` (semicolon).
+- If the AI cannot generate a UUID, use: https://www.uuidgenerator.net/
+- If there is no rating, leave it empty.
+- For the `subjects` field in the app, the format is tags separated by `;` (semicolon).
