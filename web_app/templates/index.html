@@ -204,15 +204,17 @@
                 </form>
                 <div id="save-status" class="status"></div>
 
-                <!-- Prompt Helper -->
-                <div class="prompt-section">
-                    <button type="button" class="btn btn-secondary prompt-btn" id="prompt-btn">Copy AI Metadata Prompt</button>
-                    <p class="prompt-desc">
-                        Ask AI (ChatGPT, Claude, etc.) for complete metadata, then paste the JSON result below.
-                        <button type="button" class="link-btn" id="toggle-json-format">See expected JSON format</button>
-                    </p>
-                    <div id="json-format-panel" class="json-format-panel hidden">
-                        <pre class="json-example">{
+                <!-- AI Helper Row -->
+                <div class="ai-helper-row">
+                    <!-- Prompt Helper -->
+                    <div class="prompt-section">
+                        <button type="button" class="btn btn-secondary prompt-btn" id="prompt-btn">Copy AI Metadata Prompt</button>
+                        <p class="prompt-desc">
+                            Ask AI (ChatGPT, Claude, etc.) for complete metadata, then paste the JSON result below.
+                            <button type="button" class="link-btn" id="toggle-json-format">See expected JSON format</button>
+                        </p>
+                        <div id="json-format-panel" class="json-format-panel hidden">
+                            <pre class="json-example">{
   "title": "",
   "title_sort": "",
   "creators": [""],
@@ -233,14 +235,15 @@
   "rating": "",
   "modification_date": ""
 }</pre>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Paste JSON -->
-                <div class="paste-section">
-                    <button type="button" class="btn btn-secondary paste-btn" id="paste-json-btn">Paste JSON Metadata</button>
-                    <p class="paste-desc">Paste JSON metadata from AI (ChatGPT, Claude, etc.) to auto-fill the form.</p>
-                    <div id="paste-status" class="status"></div>
+                    <!-- Paste JSON -->
+                    <div class="paste-section">
+                        <button type="button" class="btn btn-secondary paste-btn" id="paste-json-btn">Paste JSON Metadata</button>
+                        <p class="paste-desc">Paste JSON metadata from AI (ChatGPT, Claude, etc.) to auto-fill the form.</p>
+                        <div id="paste-status" class="status"></div>
+                    </div>
                 </div>
 
                 <!-- Clean Metadata -->
