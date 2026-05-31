@@ -155,6 +155,22 @@ body {
     border-color: #3b82f6;
 }
 
+.form-group input[type="date"] {
+    cursor: pointer;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    margin-right: -2px;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.8;
+}
+
 .form-group textarea {
     resize: vertical;
     min-height: 80px;
