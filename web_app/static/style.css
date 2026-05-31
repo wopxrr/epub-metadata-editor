@@ -325,10 +325,16 @@ body {
 .editor-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-bottom: 16px;
     flex-wrap: wrap;
     gap: 8px;
+}
+
+.editor-header h2 .badge {
+    margin-left: 10px;
+    vertical-align: middle;
+    font-size: 0.65rem;
 }
 
 .badge {
