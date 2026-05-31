@@ -156,7 +156,33 @@
                 <!-- Prompt Helper -->
                 <div class="prompt-section">
                     <button type="button" class="btn btn-secondary prompt-btn" id="prompt-btn">Copy AI Metadata Prompt</button>
-                    <p class="prompt-desc">Copy prompt to search for complete metadata using AI (ChatGPT, Claude, etc.)</p>
+                    <p class="prompt-desc">
+                        Ask AI (ChatGPT, Claude, etc.) for complete metadata, then paste the JSON result below.
+                        <button type="button" class="link-btn" id="toggle-json-format">See expected JSON format</button>
+                    </p>
+                    <div id="json-format-panel" class="json-format-panel hidden">
+                        <pre class="json-example">{
+  "title": "The Hobbit",
+  "title_sort": "Hobbit, The",
+  "creators": ["J. R. R. Tolkien"],
+  "author_sort": "Tolkien, J. R. R.",
+  "series": "",
+  "series_index": "",
+  "description": "<p>A fantasy novel...</p>",
+  "language": "en",
+  "publisher": "George Allen & Unwin",
+  "date": "1937-09-21",
+  "subjects": ["Fantasy", "Adventure"],
+  "identifiers": {
+    "isbn": "...",
+    "isbn_13": "...",
+    "asin": "...",
+    "uuid": "..."
+  },
+  "rating": "",
+  "modification_date": ""
+}</pre>
+                    </div>
                 </div>
 
                 <!-- Paste JSON -->
@@ -216,6 +242,8 @@
         const promptBtn = document.getElementById('prompt-btn');
         const cleanBtn = document.getElementById('clean-btn');
         const cleanStatus = document.getElementById('clean-status');
+        const toggleJsonFormat = document.getElementById('toggle-json-format');
+        const jsonFormatPanel = document.getElementById('json-format-panel');
         const pasteJsonBtn = document.getElementById('paste-json-btn');
         const pasteStatus = document.getElementById('paste-status');
         const jsonModal = document.getElementById('json-modal');
@@ -472,6 +500,12 @@
             if (uuid) ids.push(uuid);
             return ids;
         }
+
+        // Toggle JSON format panel
+        toggleJsonFormat.addEventListener('click', () => {
+            const hidden = jsonFormatPanel.classList.toggle('hidden');
+            toggleJsonFormat.textContent = hidden ? 'See expected JSON format' : 'Hide JSON format';
+        });
 
         // Prompt helper
         promptBtn.addEventListener('click', () => {
