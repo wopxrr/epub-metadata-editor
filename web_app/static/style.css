@@ -102,14 +102,25 @@ body {
 }
 
 .btn-primary {
-    background: #3b82f6;
+    background: #1e293b;
     color: #fff;
 }
 
+.btn-primary:hover {
+    opacity: 0.92;
+}
+
 .btn-secondary {
-    background: #e2e8f0;
+    background: #f1f5f9;
     color: #334155;
     margin-top: 10px;
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    flex-shrink: 0;
 }
 
 /* Form */
@@ -396,18 +407,11 @@ body {
     min-width: 130px;
 }
 
-/* AI helper row */
-.ai-helper-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+/* Prompt section */
+.prompt-section {
     margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid #e2e8f0;
-}
-
-/* Prompt section */
-.prompt-section {
     text-align: center;
 }
 
@@ -462,6 +466,9 @@ body {
 
 /* Paste JSON section */
 .paste-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
     text-align: center;
 }
 
@@ -624,7 +631,8 @@ body {
 }
 
 .toolbar-icon {
-    font-size: 1.3rem;
+    width: 22px;
+    height: 22px;
     line-height: 1;
 }
 

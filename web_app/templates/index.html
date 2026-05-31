@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EPUB Metadata Editor</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
     <div class="app">
@@ -52,10 +53,14 @@
                     </div>
                     <div class="cover-actions">
                         <label class="btn btn-secondary cover-btn">
+                            <i data-lucide="image-plus" class="btn-icon"></i>
                             Replace Cover
                             <input type="file" id="cover-file" accept="image/*" hidden>
                         </label>
-                        <button type="button" class="btn btn-danger" id="remove-cover-btn">Remove Cover</button>
+                        <button type="button" class="btn btn-danger" id="remove-cover-btn">
+                            <i data-lucide="trash-2" class="btn-icon"></i>
+                            Remove Cover
+                        </button>
                     </div>
                     <div id="cover-status" class="status"></div>
                 </div>
@@ -198,23 +203,30 @@
                     </div>
 
                     <div class="actions">
-                        <button type="submit" class="btn btn-primary">Save & Download EPUB</button>
-                        <button type="button" class="btn btn-secondary" id="reset-btn">Upload Another</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i data-lucide="download" class="btn-icon"></i>
+                            Export EPUB
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="reset-btn">
+                            <i data-lucide="upload" class="btn-icon"></i>
+                            Upload Another
+                        </button>
                     </div>
                 </form>
                 <div id="save-status" class="status"></div>
 
-                <!-- AI Helper Row -->
-                <div class="ai-helper-row">
-                    <!-- Prompt Helper -->
-                    <div class="prompt-section">
-                        <button type="button" class="btn btn-secondary prompt-btn" id="prompt-btn">Copy AI Metadata Prompt</button>
-                        <p class="prompt-desc">
-                            Ask AI (ChatGPT, Claude, etc.) for complete metadata, then paste the JSON result below.
-                            <button type="button" class="link-btn" id="toggle-json-format">See expected JSON format</button>
-                        </p>
-                        <div id="json-format-panel" class="json-format-panel hidden">
-                            <pre class="json-example">{
+                <!-- Prompt Helper -->
+                <div class="prompt-section">
+                    <button type="button" class="btn btn-secondary prompt-btn" id="prompt-btn">
+                        <i data-lucide="copy" class="btn-icon"></i>
+                        Copy AI Metadata Prompt
+                    </button>
+                    <p class="prompt-desc">
+                        Ask AI (ChatGPT, Claude, etc.) for complete metadata, then paste the JSON result below.
+                        <button type="button" class="link-btn" id="toggle-json-format">See expected JSON format</button>
+                    </p>
+                    <div id="json-format-panel" class="json-format-panel hidden">
+                        <pre class="json-example">{
   "title": "",
   "title_sort": "",
   "creators": [""],
@@ -235,20 +247,25 @@
   "rating": "",
   "modification_date": ""
 }</pre>
-                        </div>
                     </div>
+                </div>
 
-                    <!-- Paste JSON -->
-                    <div class="paste-section">
-                        <button type="button" class="btn btn-secondary paste-btn" id="paste-json-btn">Paste JSON Metadata</button>
-                        <p class="paste-desc">Paste JSON metadata from AI (ChatGPT, Claude, etc.) to auto-fill the form.</p>
-                        <div id="paste-status" class="status"></div>
-                    </div>
+                <!-- Paste JSON -->
+                <div class="paste-section">
+                    <button type="button" class="btn btn-secondary paste-btn" id="paste-json-btn">
+                        <i data-lucide="clipboard-paste" class="btn-icon"></i>
+                        Paste JSON Metadata
+                    </button>
+                    <p class="paste-desc">Paste JSON metadata from AI (ChatGPT, Claude, etc.) to auto-fill the form.</p>
+                    <div id="paste-status" class="status"></div>
                 </div>
 
                 <!-- Clean Metadata -->
                 <div class="clean-section">
-                    <button type="button" class="btn btn-danger clean-btn" id="clean-btn">Clean All Metadata</button>
+                    <button type="button" class="btn btn-danger clean-btn" id="clean-btn">
+                        <i data-lucide="trash" class="btn-icon"></i>
+                        Clean All Metadata
+                    </button>
                     <p class="clean-desc">Remove all metadata from this EPUB (title, author, description, etc.). Cover image reference is preserved.</p>
                     <div id="clean-status" class="status"></div>
                 </div>
@@ -261,8 +278,14 @@
             <h3>Paste JSON Metadata</h3>
             <textarea id="json-input" class="json-textarea" placeholder='{"title": "...", "creators": ["..."], ...}'></textarea>
             <div class="modal-actions">
-                <button type="button" class="btn btn-primary" id="apply-json-btn">Apply to Form</button>
-                <button type="button" class="btn btn-secondary" id="cancel-json-btn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="apply-json-btn">
+                    <i data-lucide="check" class="btn-icon"></i>
+                    Apply to Form
+                </button>
+                <button type="button" class="btn btn-secondary" id="cancel-json-btn">
+                    <i data-lucide="x" class="btn-icon"></i>
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
@@ -270,16 +293,16 @@
         <!-- Bottom Toolbar -->
         <div class="bottom-toolbar hidden" id="bottom-toolbar">
             <button type="button" class="toolbar-btn" id="undo-btn" title="Undo">
-                <span class="toolbar-icon">&#8630;</span>
+                <i data-lucide="undo-2" class="toolbar-icon"></i>
                 <span class="toolbar-label">Undo</span>
             </button>
             <button type="button" class="toolbar-btn" id="redo-btn" title="Redo">
-                <span class="toolbar-icon">&#8631;</span>
+                <i data-lucide="redo-2" class="toolbar-icon"></i>
                 <span class="toolbar-label">Redo</span>
             </button>
             <div class="toolbar-divider"></div>
             <button type="button" class="toolbar-btn toolbar-btn-danger" id="discard-btn" title="Discard File">
-                <span class="toolbar-icon">&#10005;</span>
+                <i data-lucide="x" class="toolbar-icon"></i>
                 <span class="toolbar-label">Discard</span>
             </button>
         </div>
@@ -853,6 +876,11 @@ Please search for complete metadata for this book from sources such as Google Bo
             }
         });
         editorObserver.observe(editorSection, { attributes: true, attributeFilter: ['class'] });
+
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     </script>
 </body>
 </html>
