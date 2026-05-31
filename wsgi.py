@@ -5,4 +5,5 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'web_app', 'src'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'web_app'))
 
-from app import app as application
+from app import app
+application = app

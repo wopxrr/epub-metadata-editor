@@ -68,13 +68,10 @@ pip install --user -r web_app/requirements.txt
 
 ```python
 import sys
-import os
-
-# Add project paths
 sys.path.insert(0, '/home/USERNAME/epub-metadata-editor/web_app/src')
 sys.path.insert(0, '/home/USERNAME/epub-metadata-editor/web_app')
-
-from app import app as application
+from app import app
+application = app
 ```
 
 **Important:** Replace `USERNAME` with your actual PythonAnywhere username!
