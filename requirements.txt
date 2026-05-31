@@ -1,1 +1,3 @@
 PyQt6>=6.5.0
+qtawesome
+Flask>=2.3.0

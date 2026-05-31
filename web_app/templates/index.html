@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EPUB Metadata Editor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <h1>EPUB Metadata Editor</h1>
+            <p>Edit metadata for your ePub books on any device</p>
+        </header>
+
+        <main class="app-main">
+            <!-- Upload Section -->
+            <section id="upload-section" class="card">
+                <h2>1. Upload EPUB</h2>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <label class="file-input-label" for="epub-file">
+                        <span class="file-input-text">Choose EPUB file</span>
+                        <input type="file" id="epub-file" name="epub" accept=".epub" required>
+                    </label>
+                    <button type="submit" class="btn btn-primary">Upload & Read Metadata</button>
+                </form>
+                <div id="upload-status" class="status"></div>
+            </section>
+
+            <!-- Editor Section (hidden initially) -->
+            <section id="editor-section" class="card hidden">
+                <h2>2. Edit Metadata</h2>
+                <form id="metadata-form">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" id="title" name="title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="creators">Creators (comma-separated)</label>
+                        <input type="text" id="creators" name="creators">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="language">Language</label>
+                            <input type="text" id="language" name="language" placeholder="e.g. en, id">
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Publication Date</label>
+                            <input type="text" id="date" name="date" placeholder="YYYY-MM-DD">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="publisher">Publisher</label>
+                        <input type="text" id="publisher" name="publisher">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subjects">Subjects (comma-separated)</label>
+                        <input type="text" id="subjects" name="subjects">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="identifiers">Identifiers (comma-separated)</label>
+                        <input type="text" id="identifiers" name="identifiers">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="series">Series</label>
+                            <input type="text" id="series" name="series">
+                        </div>
+                        <div class="form-group">
+                            <label for="series_index">Series Index</label>
+                            <input type="text" id="series_index" name="series_index">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title_sort">Title Sort</label>
+                            <input type="text" id="title_sort" name="title_sort">
+                        </div>
+                        <div class="form-group">
+                            <label for="author_sort">Author Sort</label>
+                            <input type="text" id="author_sort" name="author_sort">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rights">Rights</label>
+                        <input type="text" id="rights" name="rights">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rating">Rating</label>
+                            <input type="text" id="rating" name="rating" placeholder="1-10">
+                        </div>
+                        <div class="form-group">
+                            <label for="modification_date">Modification Date</label>
+                            <input type="text" id="modification_date" name="modification_date" placeholder="ISO 8601">
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Save & Download EPUB</button>
+                        <button type="button" class="btn btn-secondary" id="reset-btn">Upload Another</button>
+                    </div>
+                </form>
+                <div id="save-status" class="status"></div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>EPUB Metadata Editor Web v1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentSession = null;
+
+        const uploadForm = document.getElementById('upload-form');
+        const metadataForm = document.getElementById('metadata-form');
+        const uploadSection = document.getElementById('upload-section');
+        const editorSection = document.getElementById('editor-section');
+        const uploadStatus = document.getElementById('upload-status');
+        const saveStatus = document.getElementById('save-status');
+        const fileInput = document.getElementById('epub-file');
+        const fileLabelText = document.querySelector('.file-input-text');
+
+        fileInput.addEventListener('change', () => {
+            const name = fileInput.files[0]?.name || 'Choose EPUB file';
+            fileLabelText.textContent = name;
+        });
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            uploadStatus.textContent = 'Reading EPUB...';
+            uploadStatus.className = 'status info';
+
+            const formData = new FormData(uploadForm);
+            try {
+                const res = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+
+                currentSession = data.session_id;
+                populateForm(data.metadata);
+                uploadSection.classList.add('hidden');
+                editorSection.classList.remove('hidden');
+                saveStatus.textContent = '';
+            } catch (err) {
+                uploadStatus.textContent = 'Error: ' + err.message;
+                uploadStatus.className = 'status error';
+            }
+        });
+
+        metadataForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            saveStatus.textContent = 'Saving...';
+            saveStatus.className = 'status info';
+
+            const payload = {
+                session_id: currentSession,
+                title: document.getElementById('title').value,
+                creators: splitList(document.getElementById('creators').value),
+                language: document.getElementById('language').value,
+                identifiers: splitList(document.getElementById('identifiers').value),
+                description: document.getElementById('description').value,
+                publisher: document.getElementById('publisher').value,
+                date: document.getElementById('date').value,
+                rights: document.getElementById('rights').value,
+                subjects: splitList(document.getElementById('subjects').value),
+                series: document.getElementById('series').value,
+                series_index: document.getElementById('series_index').value,
+                title_sort: document.getElementById('title_sort').value,
+                author_sort: document.getElementById('author_sort').value,
+                rating: document.getElementById('rating').value,
+                modification_date: document.getElementById('modification_date').value,
+            };
+
+            try {
+                const res = await fetch('/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.error || 'Save failed');
+                }
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = res.headers.get('content-disposition')?.match(/filename="?(.+?)"?;?$/i)?.[1] || 'edited.epub';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                saveStatus.textContent = 'Saved! Check your downloads.';
+                saveStatus.className = 'status success';
+            } catch (err) {
+                saveStatus.textContent = 'Error: ' + err.message;
+                saveStatus.className = 'status error';
+            }
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            uploadForm.reset();
+            fileLabelText.textContent = 'Choose EPUB file';
+            metadataForm.reset();
+            currentSession = null;
+            editorSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            uploadStatus.textContent = '';
+            saveStatus.textContent = '';
+        });
+
+        function populateForm(meta) {
+            document.getElementById('title').value = meta.title || '';
+            document.getElementById('creators').value = (meta.creators || []).join(', ');
+            document.getElementById('language').value = meta.language || '';
+            document.getElementById('identifiers').value = (meta.identifiers || []).join(', ');
+            document.getElementById('description').value = meta.description || '';
+            document.getElementById('publisher').value = meta.publisher || '';
+            document.getElementById('date').value = meta.date || '';
+            document.getElementById('rights').value = meta.rights || '';
+            document.getElementById('subjects').value = (meta.subjects || []).join(', ');
+            document.getElementById('series').value = meta.series || '';
+            document.getElementById('series_index').value = meta.series_index || '';
+            document.getElementById('title_sort').value = meta.title_sort || '';
+            document.getElementById('author_sort').value = meta.author_sort || '';
+            document.getElementById('rating').value = meta.rating || '';
+            document.getElementById('modification_date').value = meta.modification_date || '';
+        }
+
+        function splitList(str) {
+            if (!str) return [];
+            return str.split(',').map(s => s.trim()).filter(Boolean);
+        }
+    </script>
+</body>
+</html>
