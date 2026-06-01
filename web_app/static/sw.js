@@ -1,10 +1,10 @@
-const CACHE_NAME = 'epub-editor-v1';
+const CACHE_NAME = 'epub-editor-v2';
 const STATIC_ASSETS = [
   '/',
-  '/static/style.css',
-  '/static/manifest.json',
-  '/static/icon-192.png',
-  '/static/icon-512.png',
+  '/static/style.css?v=2',
+  '/static/manifest.json?v=2',
+  '/static/icon-192.png?v=2',
+  '/static/icon-512.png?v=2',
 ];
 
 // Install: cache static assets
