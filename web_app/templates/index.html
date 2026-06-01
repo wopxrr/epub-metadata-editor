@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
@@ -958,7 +959,7 @@ Please search for complete metadata for this book from sources such as Google Bo
 
         // Register PWA service worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
         }
 
         // Initialize Lucide icons

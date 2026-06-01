@@ -8,7 +8,7 @@ from pathlib import Path
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
-from flask import Flask, request, jsonify, render_template, send_file, after_this_request
+from flask import Flask, request, jsonify, render_template, send_file, send_from_directory, after_this_request
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB max upload
@@ -27,6 +27,11 @@ _temp_store: dict[str, str] = {}
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/sw.js")
+def serve_sw():
+    return send_from_directory("static", "sw.js", mimetype="application/javascript")
 
 
 @app.route("/upload", methods=["POST"])

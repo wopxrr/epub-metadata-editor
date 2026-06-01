@@ -3,6 +3,7 @@
   "short_name": "EPUB Editor",
   "description": "Edit metadata for your EPUB books on any device",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#1e293b",
