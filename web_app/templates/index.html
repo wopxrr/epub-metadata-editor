@@ -834,11 +834,12 @@ Please search for complete metadata for this book from sources such as Google Bo
                     modification_date: meta.modification_date || meta.modified || meta.Modified || meta.modifiedDate || '',
                 };
                 populateForm(mapped);
-                // Directly set identifier fields if JSON has them separate
-                document.getElementById('isbn').value = meta.isbn || meta.ISBN || meta.isbn_10 || meta.ISBN_10 || '';
-                document.getElementById('isbn13').value = meta.isbn13 || meta.ISBN13 || meta.isbn_13 || meta.ISBN_13 || '';
-                document.getElementById('asin').value = meta.asin || meta.ASIN || '';
-                document.getElementById('uuid').value = meta.uuid || meta.UUID || '';
+                // Directly set identifier fields if JSON has them separate or nested in identifiers object
+                const idObj = meta.identifiers && typeof meta.identifiers === 'object' && !Array.isArray(meta.identifiers) ? meta.identifiers : {};
+                document.getElementById('isbn').value = meta.isbn || meta.ISBN || idObj.isbn || idObj.ISBN || idObj.isbn_10 || idObj.ISBN_10 || '';
+                document.getElementById('isbn13').value = meta.isbn13 || meta.ISBN13 || meta.isbn_13 || meta.ISBN_13 || idObj.isbn13 || idObj.ISBN13 || idObj.isbn_13 || idObj.ISBN_13 || '';
+                document.getElementById('asin').value = meta.asin || meta.ASIN || idObj.asin || idObj.ASIN || '';
+                document.getElementById('uuid').value = meta.uuid || meta.UUID || idObj.uuid || idObj.UUID || '';
                 setDirty(true);
                 pasteStatus.textContent = 'Metadata successfully applied from JSON!';
                 pasteStatus.className = 'status success';
