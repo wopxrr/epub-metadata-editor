@@ -5,6 +5,8 @@ import tempfile
 import uuid
 import zipfile
 from pathlib import Path
+from urllib.request import urlopen
+from urllib.error import URLError, HTTPError
 
 from flask import Flask, request, jsonify, render_template, send_file, after_this_request
 
@@ -196,6 +198,55 @@ def update_cover(session_id):
     mimetype = mime_map.get(ext, "image/jpeg")
     filename = f"cover{ext if ext else '.jpg'}"
 
+    handler = EpubHandler()
+    try:
+        handler.open_epub(tmp_path)
+        handler.set_cover_image(image_bytes, filename, mimetype)
+        meta = handler.get_metadata()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    finally:
+        handler.close()
+
+    return jsonify({"success": True, "cover_id": meta.cover_id, "has_cover": bool(meta.cover_id)})
+
+
+@app.route("/cover-from-url/<session_id>", methods=["POST"])
+def update_cover_from_url(session_id):
+    if session_id not in _temp_store:
+        return jsonify({"error": "Invalid session"}), 400
+
+    data = request.get_json() or {}
+    url = data.get("url", "").strip()
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+
+    try:
+        with urlopen(url, timeout=15) as response:
+            content_type = response.headers.get("Content-Type", "").lower()
+            if not content_type.startswith("image/"):
+                return jsonify({"error": "URL does not point to an image"}), 400
+            image_bytes = response.read()
+            if not image_bytes:
+                return jsonify({"error": "Empty image"}), 400
+    except HTTPError as e:
+        return jsonify({"error": f"HTTP {e.code}: {e.reason}"}), 400
+    except URLError as e:
+        return jsonify({"error": f"URL error: {e.reason}"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    ext_map = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/gif": ".gif",
+        "image/webp": ".webp",
+    }
+    ext = ext_map.get(content_type.split(";")[0].strip(), ".jpg")
+    filename = f"cover{ext}"
+    mimetype = content_type.split(";")[0].strip()
+
+    tmp_path = _temp_store[session_id]
     handler = EpubHandler()
     try:
         handler.open_epub(tmp_path)

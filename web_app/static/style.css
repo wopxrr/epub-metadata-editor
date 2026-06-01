@@ -385,14 +385,84 @@ body {
 
 .cover-actions {
     display: flex;
+    flex-direction: column;
     gap: 10px;
+    align-items: center;
+}
+
+.cover-tabs {
+    display: flex;
+    gap: 6px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 4px;
+    width: 100%;
+    max-width: 280px;
+}
+
+.cover-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-family: inherit;
+}
+
+.cover-tab.active {
+    background: #fff;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.tab-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.cover-tab-panel {
+    display: none;
+    width: 100%;
+    max-width: 280px;
+}
+
+.cover-tab-panel.active {
+    display: block;
+}
+
+.cover-url-row {
+    display: flex;
+    gap: 8px;
+}
+
+.cover-url-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    background: #fff;
+    min-width: 0;
+}
+
+.cover-url-input:focus {
+    outline: none;
+    border-color: #3b82f6;
 }
 
 .cover-btn {
-    width: auto;
-    min-width: 130px;
+    width: 100%;
+    display: inline-flex;
 }
 
 /* Danger button */
