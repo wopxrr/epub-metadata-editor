@@ -58,32 +58,11 @@
                         <div id="cover-placeholder" class="cover-placeholder">No Cover</div>
                     </div>
                     <div class="cover-actions">
-                        <button type="button" class="btn btn-primary" id="change-cover-btn">
+                        <label class="btn btn-primary" id="change-cover-btn">
                             <i data-lucide="image-plus" class="btn-icon"></i>
                             Change Cover
-                        </button>
-
-                        <div class="cover-options hidden" id="cover-options">
-                            <label class="btn btn-secondary cover-btn">
-                                <i data-lucide="smartphone" class="btn-icon"></i>
-                                From Device
-                                <input type="file" id="cover-file" accept="image/*" hidden>
-                            </label>
-                            <button type="button" class="btn btn-secondary" id="cover-url-toggle-btn">
-                                <i data-lucide="globe" class="btn-icon"></i>
-                                From URL
-                            </button>
-                        </div>
-
-                        <div class="cover-url-panel hidden" id="cover-url-panel">
-                            <div class="cover-url-row">
-                                <input type="url" id="cover-url-input" placeholder="Paste image URL..." class="cover-url-input">
-                                <button type="button" class="btn btn-primary" id="cover-url-btn">
-                                    <i data-lucide="download" class="btn-icon"></i>
-                                    Load
-                                </button>
-                            </div>
-                        </div>
+                            <input type="file" id="cover-file" accept="image/*" hidden>
+                        </label>
 
                         <button type="button" class="btn btn-danger" id="remove-cover-btn">
                             <i data-lucide="trash-2" class="btn-icon"></i>
@@ -360,12 +339,6 @@
         const coverFile = document.getElementById('cover-file');
         const removeCoverBtn = document.getElementById('remove-cover-btn');
         const coverStatus = document.getElementById('cover-status');
-        const changeCoverBtn = document.getElementById('change-cover-btn');
-        const coverOptions = document.getElementById('cover-options');
-        const coverUrlToggleBtn = document.getElementById('cover-url-toggle-btn');
-        const coverUrlPanel = document.getElementById('cover-url-panel');
-        const coverUrlInput = document.getElementById('cover-url-input');
-        const coverUrlBtn = document.getElementById('cover-url-btn');
         const versionBadge = document.getElementById('version-badge');
         const promptBtn = document.getElementById('prompt-btn');
         const cleanBtn = document.getElementById('clean-btn');
@@ -556,62 +529,6 @@
                 coverStatus.className = 'status error';
             }
             coverFile.value = '';
-        });
-
-        // Cover change toggle
-        function showCoverOptions() {
-            changeCoverBtn.classList.add('hidden');
-            coverOptions.classList.remove('hidden');
-            coverUrlPanel.classList.add('hidden');
-        }
-        function hideCoverOptions() {
-            changeCoverBtn.classList.remove('hidden');
-            coverOptions.classList.add('hidden');
-            coverUrlPanel.classList.add('hidden');
-        }
-        changeCoverBtn.addEventListener('click', showCoverOptions);
-        coverUrlToggleBtn.addEventListener('click', () => {
-            coverOptions.classList.add('hidden');
-            coverUrlPanel.classList.remove('hidden');
-            coverUrlInput.focus();
-        });
-
-        // After file selected, hide options
-        coverFile.addEventListener('change', () => {
-            if (coverFile.files[0]) {
-                hideCoverOptions();
-            }
-        });
-
-        // Load cover from URL
-        coverUrlBtn.addEventListener('click', async () => {
-            const url = coverUrlInput.value.trim();
-            if (!url) {
-                coverStatus.textContent = 'Please enter an image URL';
-                coverStatus.className = 'status error';
-                return;
-            }
-            coverStatus.textContent = 'Downloading cover...';
-            coverStatus.className = 'status info';
-            try {
-                const res = await fetch(`/cover-from-url/${currentSession}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url }),
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Failed');
-                hasCover = data.has_cover;
-                await refreshCover();
-                coverStatus.textContent = 'Cover loaded from URL!';
-                coverStatus.className = 'status success';
-                coverUrlInput.value = '';
-                hideCoverOptions();
-                setDirty(true);
-            } catch (err) {
-                coverStatus.textContent = 'Error: ' + err.message;
-                coverStatus.className = 'status error';
-            }
         });
 
         removeCoverBtn.addEventListener('click', async () => {
