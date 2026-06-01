@@ -55,26 +55,24 @@
                         <div id="cover-placeholder" class="cover-placeholder">No Cover</div>
                     </div>
                     <div class="cover-actions">
-                        <div class="cover-tabs">
-                            <button type="button" class="cover-tab active" data-tab="device" id="cover-tab-device">
-                                <i data-lucide="smartphone" class="tab-icon"></i>
-                                Device
-                            </button>
-                            <button type="button" class="cover-tab" data-tab="url" id="cover-tab-url">
-                                <i data-lucide="globe" class="tab-icon"></i>
-                                URL
-                            </button>
-                        </div>
+                        <button type="button" class="btn btn-primary" id="change-cover-btn">
+                            <i data-lucide="image-plus" class="btn-icon"></i>
+                            Change Cover
+                        </button>
 
-                        <div class="cover-tab-panel active" id="cover-device-panel">
-                            <label class="btn btn-primary cover-btn">
-                                <i data-lucide="image-plus" class="btn-icon"></i>
-                                Select Image
+                        <div class="cover-options hidden" id="cover-options">
+                            <label class="btn btn-secondary cover-btn">
+                                <i data-lucide="smartphone" class="btn-icon"></i>
+                                From Device
                                 <input type="file" id="cover-file" accept="image/*" hidden>
                             </label>
+                            <button type="button" class="btn btn-secondary" id="cover-url-toggle-btn">
+                                <i data-lucide="globe" class="btn-icon"></i>
+                                From URL
+                            </button>
                         </div>
 
-                        <div class="cover-tab-panel" id="cover-url-panel">
+                        <div class="cover-url-panel hidden" id="cover-url-panel">
                             <div class="cover-url-row">
                                 <input type="url" id="cover-url-input" placeholder="Paste image URL..." class="cover-url-input">
                                 <button type="button" class="btn btn-primary" id="cover-url-btn">
@@ -359,9 +357,9 @@
         const coverFile = document.getElementById('cover-file');
         const removeCoverBtn = document.getElementById('remove-cover-btn');
         const coverStatus = document.getElementById('cover-status');
-        const coverTabDevice = document.getElementById('cover-tab-device');
-        const coverTabUrl = document.getElementById('cover-tab-url');
-        const coverDevicePanel = document.getElementById('cover-device-panel');
+        const changeCoverBtn = document.getElementById('change-cover-btn');
+        const coverOptions = document.getElementById('cover-options');
+        const coverUrlToggleBtn = document.getElementById('cover-url-toggle-btn');
         const coverUrlPanel = document.getElementById('cover-url-panel');
         const coverUrlInput = document.getElementById('cover-url-input');
         const coverUrlBtn = document.getElementById('cover-url-btn');
@@ -557,22 +555,30 @@
             coverFile.value = '';
         });
 
-        // Cover tab switching
-        function switchCoverTab(tab) {
-            if (tab === 'device') {
-                coverTabDevice.classList.add('active');
-                coverTabUrl.classList.remove('active');
-                coverDevicePanel.classList.add('active');
-                coverUrlPanel.classList.remove('active');
-            } else {
-                coverTabUrl.classList.add('active');
-                coverTabDevice.classList.remove('active');
-                coverUrlPanel.classList.add('active');
-                coverDevicePanel.classList.remove('active');
-            }
+        // Cover change toggle
+        function showCoverOptions() {
+            changeCoverBtn.classList.add('hidden');
+            coverOptions.classList.remove('hidden');
+            coverUrlPanel.classList.add('hidden');
         }
-        coverTabDevice.addEventListener('click', () => switchCoverTab('device'));
-        coverTabUrl.addEventListener('click', () => switchCoverTab('url'));
+        function hideCoverOptions() {
+            changeCoverBtn.classList.remove('hidden');
+            coverOptions.classList.add('hidden');
+            coverUrlPanel.classList.add('hidden');
+        }
+        changeCoverBtn.addEventListener('click', showCoverOptions);
+        coverUrlToggleBtn.addEventListener('click', () => {
+            coverOptions.classList.add('hidden');
+            coverUrlPanel.classList.remove('hidden');
+            coverUrlInput.focus();
+        });
+
+        // After file selected, hide options
+        coverFile.addEventListener('change', () => {
+            if (coverFile.files[0]) {
+                hideCoverOptions();
+            }
+        });
 
         // Load cover from URL
         coverUrlBtn.addEventListener('click', async () => {
@@ -597,6 +603,7 @@
                 coverStatus.textContent = 'Cover loaded from URL!';
                 coverStatus.className = 'status success';
                 coverUrlInput.value = '';
+                hideCoverOptions();
                 setDirty(true);
             } catch (err) {
                 coverStatus.textContent = 'Error: ' + err.message;

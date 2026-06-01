@@ -390,53 +390,27 @@ body {
     align-items: center;
 }
 
-.cover-tabs {
+.cover-options {
     display: flex;
-    gap: 6px;
-    background: #f1f5f9;
-    border-radius: 10px;
-    padding: 4px;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
     width: 100%;
     max-width: 280px;
 }
 
-.cover-tab {
-    flex: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px 10px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: #64748b;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    font-family: inherit;
+.cover-options.hidden {
+    display: none !important;
 }
 
-.cover-tab.active {
-    background: #fff;
-    color: #1e293b;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.tab-icon {
-    width: 16px;
-    height: 16px;
-}
-
-.cover-tab-panel {
+.cover-url-panel {
     display: none;
     width: 100%;
     max-width: 280px;
 }
 
-.cover-tab-panel.active {
-    display: block;
+.cover-url-panel.hidden {
+    display: none !important;
 }
 
 .cover-url-row {
