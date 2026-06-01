@@ -439,6 +439,12 @@ body {
     display: inline-flex;
 }
 
+/* Cover action buttons (Change Cover + Remove Cover) */
+#change-cover-btn {
+    width: auto;
+    min-width: 130px;
+}
+
 /* Danger button */
 .btn-danger {
     background: #ef4444;
