@@ -1,0 +1,43 @@
+Create a modern, minimalist app icon/logo for an "EPUB Metadata Editor" web application.
+
+## App Description
+This is a web-based tool for editing metadata of EPUB e-book files. Users can upload EPUB files, edit book metadata (title, author, publisher, cover image, etc.), and download the updated file.
+
+## Design Requirements
+
+### Style
+- Modern, clean, minimalist flat design
+- Material Design or Apple Human Interface style
+- Suitable for a PWA (Progressive Web App) icon
+- Must look good at both small (48x48) and large (512x512) sizes
+
+### Color Palette
+- Primary: Dark navy/slate (#1e293b) or deep charcoal
+- Accent: Blue (#3b82f6) or teal/cyan for highlights
+- Background: Transparent or light (#f8fafc)
+- Optional subtle gradient allowed
+
+### Icon Concept Ideas (pick one or combine)
+1. An open book with a pencil/pen editing it
+2. A book with a metadata tag or label floating beside it
+3. A book with small gear/settings icon overlay
+4. An e-reader/tablet showing a book with editing UI
+5. A stylized "M" or "E" formed by book pages
+
+### Composition
+- Centered, balanced composition
+- Rounded corners (squircle shape preferred for app icons)
+- No text or very minimal text only if absolutely necessary
+- Focus on the book + editing concept
+
+### Output Format
+- Provide as SVG (preferred) or high-resolution PNG (1024x1024)
+- Transparent background
+- Include a version with a colored background for social media/preview
+- Include a monochrome version for dark mode / adaptive icons
+
+## Important Notes
+- Must be immediately recognizable as a "book editing" tool
+- Should feel professional and trustworthy
+- Avoid overly complex details that get lost at small sizes
+- The icon will be used as a PWA home screen icon, so it needs to stand out
